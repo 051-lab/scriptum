@@ -1,1 +1,50 @@
-Nothing needs to be added to .gitignore since only a README.md file was modified and no build artifacts, dependencies, or temporary files were detected in the changes.
+```
+# Build results
+**/Debug/
+**/Release/
+**/bin/
+**/obj/
+**/out/
+
+# Dependencies
+packages/
+node_modules/
+*.userprefs
+
+# Logs
+*.log
+
+# User-specific files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Environment specific settings
+.env
+.env.local
+*.local.settings.json
+
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+desktop.ini
+
+# Testing
+TestResults/
+
+# NuGet
+*.nupkg
+nuget.exe
+
+# Visual Studio Code
+.vscode/
+
+# Resharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+```

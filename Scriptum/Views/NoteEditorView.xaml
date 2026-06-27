@@ -1,0 +1,64 @@
+<Page
+    x:Class="Scriptum.Views.NoteEditorView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:Scriptum.ViewModels"
+    xmlns:controls="using:Scriptum.Controls">
+
+    <Page.DataContext>
+        <vm:NoteEditorViewModel />
+    </Page.DataContext>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- Title and Toolbar -->
+        <StackPanel Grid.Row="0" Padding="16" Spacing="8">
+            <TextBox Text="{x:Bind ViewModel.NoteTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     PlaceholderText="Note Title"
+                     FontSize="24"
+                     FontWeight="Bold"/>
+            
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Content="Pen" Command="{x:Bind ViewModel.SetPenToolCommand}"/>
+                <Button Content="Highlighter" Command="{x:Bind ViewModel.SetHighlighterToolCommand}"/>
+                <Button Content="Eraser" Command="{x:Bind ViewModel.SetEraserToolCommand}"/>
+                <Button Content="Undo" Command="{x:Bind ViewModel.UndoCommand}" 
+                        IsEnabled="{x:Bind ViewModel.CanUndo, Mode=OneWay}"/>
+                <Button Content="Redo" Command="{x:Bind ViewModel.RedoCommand}" 
+                        IsEnabled="{x:Bind ViewModel.CanRedo, Mode=OneWay}"/>
+                <Button Content="Export PNG" Command="{x:Bind ViewModel.ExportToPngCommand}" 
+                        IsEnabled="{x:Bind ViewModel.IsExporting, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"/>
+                <Button Content="Clear" Command="{x:Bind ViewModel.ClearCanvasCommand}"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Canvas Area -->
+        <controls:InkCanvasControl x:Name="InkCanvas" 
+                                   Grid.Row="1"
+                                   Background="White"
+                                   ViewModel="{x:Bind ViewModel, Mode=OneWay}"
+                                   BrushSize="{x:Bind ViewModel.BrushSize, Mode=TwoWay}"
+                                   BrushColor="{x:Bind ViewModel.BrushColor, Mode=TwoWay}"/>
+
+        <!-- Status Bar -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Padding="16,8" Spacing="16">
+            <TextBlock Text="{x:Bind ViewModel.BrushSize, StringFormat='Brush Size: {0:F1}', Mode=OneWay}"/>
+            <TextBlock Text="{x:Bind ViewModel.IsDirty, StringFormat='Unsaved Changes: {0}', Mode=OneWay}"/>
+            <Button Content="Save Note" Command="{x:Bind ViewModel.SaveNoteCommand}" HorizontalAlignment="Right"/>
+            <Button Content="Recognize Handwriting" Command="{x:Bind ViewModel.RecognizeHandwritingCommand}" 
+                    IsEnabled="{x:Bind ViewModel.IsRecognizing, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"/>
+            <ProgressRing IsActive="{x:Bind ViewModel.IsRecognizing, Mode=OneWay}" Width="20" Height="20"/>
+            <ProgressRing IsActive="{x:Bind ViewModel.IsExporting, Mode=OneWay}" Width="20" Height="20"/>
+        </StackPanel>
+
+        <!-- Recognition Results -->
+        <Border Grid.Row="1" Background="#F5F5F5" VerticalAlignment="Bottom" Margin="16" 
+                Visibility="{x:Bind ViewModel.RecognizedText, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}">
+            <ScrollViewer MaxHeight="150" Padding="16">
+                <StackPanel>
+                    <TextBlock Text="Recognition Results:" FontWeight="Bold" Margin="0,0,0,8"/>
+                    <TextBlock Text="{x:Bind ViewModel.RecognizedText, Mode=OneWay}" TextWrapping="Wrap"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</Page>

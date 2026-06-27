@@ -18,4 +18,55 @@
   <data name="AppSubtitle" xml:space="preserve">
     <value>Premium Local-First Digital Notebook</value>
   </data>
+  <data name="NewNotebook" xml:space="preserve">
+    <value>+ New Notebook</value>
+  </data>
+  <data name="CreateNotebookTitle" xml:space="preserve">
+    <value>Create New Notebook</value>
+  </data>
+  <data name="NotebookNamePlaceholder" xml:space="preserve">
+    <value>Notebook Name</value>
+  </data>
+  <data name="NotebookDescriptionPlaceholder" xml:space="preserve">
+    <value>Description (optional)</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="OpenNoteEditor" xml:space="preserve">
+    <value>Open Note Editor</value>
+  </data>
+  <data name="PenTool" xml:space="preserve">
+    <value>Pen</value>
+  </data>
+  <data name="HighlighterTool" xml:space="preserve">
+    <value>Highlighter</value>
+  </data>
+  <data name="EraserTool" xml:space="preserve">
+    <value>Eraser</value>
+  </data>
+  <data name="ClearCanvas" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="SaveNote" xml:space="preserve">
+    <value>Save Note</value>
+  </data>
+  <data name="RecognizeHandwriting" xml:space="preserve">
+    <value>Recognize Handwriting</value>
+  </data>
+  <data name="BrushSizeLabel" xml:space="preserve">
+    <value>Brush Size:</value>
+  </data>
+  <data name="UnsavedChangesLabel" xml:space="preserve">
+    <value>Unsaved Changes:</value>
+  </data>
+  <data name="RecognitionResultsTitle" xml:space="preserve">
+    <value>Recognition Results:</value>
+  </data>
+  <data name="NoteTitlePlaceholder" xml:space="preserve">
+    <value>Note Title</value>
+  </data>
 </root>
