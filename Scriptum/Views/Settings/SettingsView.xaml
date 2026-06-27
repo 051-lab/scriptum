@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="Scriptum.Views.SettingsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Scriptum.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer Padding="24">
+        <StackPanel Spacing="20" MaxWidth="600">
+            <TextBlock Text="Settings" Style="{StaticResource TitleTextBlockStyle}" />
+
+            <!-- API Configuration Section -->
+            <StackPanel Spacing="10">
+                <TextBlock Text="Qwen-VL API Configuration" Style="{StaticResource SubtitleTextBlockStyle}" />
+                <TextBlock Text="Enter your Qwen-VL API key for handwriting recognition" 
+                           TextWrapping="Wrap" 
+                           Foreground="{ThemeResource TextFillColorSecondary}" />
+                
+                <PasswordBox Header="API Key" 
+                             Password="{x:Bind ViewModel.QwenApiKey, Mode=TwoWay}"
+                             PlaceholderText="Enter your API key"
+                             Width="400"
+                             HorizontalAlignment="Left" />
+                
+                <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,10,0,0">
+                    <Button Content="Save Settings" 
+                            Command="{x:Bind ViewModel.SaveSettingsCommand}"
+                            Style="{StaticResource AccentButtonStyle}" />
+                    <Button Content="Clear API Key" 
+                            Command="{x:Bind ViewModel.ClearApiKeyCommand}" />
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,10,0,0">
+                    <FontIcon Glyph="&#xE73E;" 
+                              Foreground="{ThemeResource SystemAccentColor}" 
+                              FontSize="16"
+                              Visibility="{x:Bind ViewModel.IsApiConfigured, Mode=OneWay}" />
+                    <TextBlock Text="API key is configured" 
+                               Visibility="{x:Bind ViewModel.IsApiConfigured, Mode=OneWay}"
+                               VerticalAlignment="Center" />
+                    <TextBlock Text="API key not configured" 
+                               Visibility="{x:Bind ViewModel.IsApiConfigured, Converter={StaticResource BoolNegationConverter}, Mode=OneWay}"
+                               Foreground="{ThemeResource TextFillColorSecondary}"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Theme Section -->
+            <StackPanel Spacing="10" Margin="0,20,0,0">
+                <TextBlock Text="Appearance" Style="{StaticResource SubtitleTextBlockStyle}" />
+                
+                <ComboBox Header="App Theme" 
+                          SelectedItem="{x:Bind ViewModel.SelectedTheme, Mode=TwoWay}"
+                          Width="200"
+                          HorizontalAlignment="Left">
+                    <ComboBoxItem Content="System" />
+                    <ComboBoxItem Content="Light" />
+                    <ComboBoxItem Content="Dark" />
+                </ComboBox>
+            </StackPanel>
+
+            <!-- About Section -->
+            <StackPanel Spacing="10" Margin="0,20,0,0">
+                <TextBlock Text="About Scriptum" Style="{StaticResource SubtitleTextBlockStyle}" />
+                <TextBlock Text="Version 1.0.0" Foreground="{ThemeResource TextFillColorSecondary}" />
+                <TextBlock Text="A digital notebook application with AI-powered handwriting recognition." 
+                           TextWrapping="Wrap" 
+                           Foreground="{ThemeResource TextFillColorSecondary}" />
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
