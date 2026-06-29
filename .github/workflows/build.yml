@@ -46,4 +46,20 @@ jobs:
           if-no-files-found: ignore
 
       - name: Build
-        run: dotnet build Scriptum/Scriptum.csproj --configuration Release --no-restore -p:Platform=x64 --verbosity minimal
+        shell: pwsh
+        run: |
+          dotnet build Scriptum/Scriptum.csproj --configuration Release --no-restore -p:Platform=x64 --verbosity normal > artifacts/build.log 2>&1
+          $buildExitCode = $LASTEXITCODE
+          Get-Content artifacts/build.log -Tail 160
+          if ($buildExitCode -ne 0) {
+            Write-Host "dotnet build failed with exit code $buildExitCode"
+            exit $buildExitCode
+          }
+
+      - name: Upload build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-diagnostics
+          path: artifacts/build.log
+          if-no-files-found: ignore
