@@ -12,11 +12,13 @@ on:
 jobs:
   build:
     name: Build Scriptum
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          show-progress: false
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -24,7 +26,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Restore
-        run: dotnet restore Scriptum.sln /p:Platform=x64
+        run: dotnet restore Scriptum/Scriptum.csproj -p:Platform=x64 --verbosity minimal
 
       - name: Build
-        run: dotnet build Scriptum.sln --configuration Release --no-restore /p:Platform=x64
+        run: dotnet build Scriptum/Scriptum.csproj --configuration Release --no-restore -p:Platform=x64 --verbosity minimal
