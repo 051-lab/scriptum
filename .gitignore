@@ -1,1 +1,70 @@
-Nothing should be ignored in this case, as only a README.md file was modified and no build artifacts, dependencies, or temporary files were present in the changes.
+# Build artifacts
+bin/
+obj/
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]uild/
+[Bb]ld/
+artifacts/
+AppPackages/
+BundleArtifacts/
+
+# Windows app packages
+*.appx
+*.appxbundle
+*.appxupload
+*.msix
+*.msixbundle
+*.msixupload
+
+# Binaries and symbols
+*.exe
+*.dll
+*.pdb
+*.ilk
+*.idb
+*.iobj
+*.ipdb
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+*.nuget.props
+*.nuget.targets
+project.assets.json
+
+# Logs and diagnostics
+*.log
+*.binlog
+TestResults/
+*.trx
+coverage/
+coverage*.json
+coverage*.xml
+coverage*.info
+
+# Environment and secrets
+.env
+.env.local
+*.env.*
+*.pfx
+*.snk
+*.publishsettings
+
+# IDE/user files
+.vs/
+.vscode/.ropeproject/
+*.user
+*.userosscache
+*.suo
+*.rsuser
+*.sln.docstates
+
+# OS generated files
+.DS_Store
+Thumbs.db
