@@ -26,7 +26,24 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Restore
-        run: dotnet restore Scriptum/Scriptum.csproj -p:Platform=x64 --verbosity minimal
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          dotnet restore Scriptum/Scriptum.csproj -p:Platform=x64 --verbosity normal > artifacts/restore.log 2>&1
+          $restoreExitCode = $LASTEXITCODE
+          Get-Content artifacts/restore.log -Tail 120
+          if ($restoreExitCode -ne 0) {
+            Write-Host "dotnet restore failed with exit code $restoreExitCode"
+            exit $restoreExitCode
+          }
+
+      - name: Upload restore diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: restore-diagnostics
+          path: artifacts/restore.log
+          if-no-files-found: ignore
 
       - name: Build
         run: dotnet build Scriptum/Scriptum.csproj --configuration Release --no-restore -p:Platform=x64 --verbosity minimal
