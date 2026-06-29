@@ -24,7 +24,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Restore
-        run: dotnet restore Scriptum.sln
+        run: dotnet restore Scriptum.sln /p:Platform=x64
 
       - name: Build
         run: dotnet build Scriptum.sln --configuration Release --no-restore /p:Platform=x64
