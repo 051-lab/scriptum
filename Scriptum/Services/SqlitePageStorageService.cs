@@ -1,4 +1,3 @@
-using System.Text;
 using System.Text.Json;
 using Microsoft.Data.Sqlite;
 using Scriptum.Data;
@@ -37,7 +36,7 @@ public sealed class SqlitePageStorageService : IPageStorageService, IDisposable
         page.UpdatedAt = DateTimeOffset.UtcNow;
         var payload = JsonSerializer.SerializeToUtf8Bytes(page, _jsonOptions);
 
-        await using var command = _databaseContext.Connection.CreateCommand();
+        using var command = _databaseContext.Connection.CreateCommand();
         command.CommandText = """
             INSERT INTO notebook_pages (id, title, created_at, updated_at, payload)
             VALUES ($id, $title, $createdAt, $updatedAt, $payload)
@@ -60,7 +59,7 @@ public sealed class SqlitePageStorageService : IPageStorageService, IDisposable
     {
         await EnsureInitializedAsync(cancellationToken);
 
-        await using var command = _databaseContext.Connection.CreateCommand();
+        using var command = _databaseContext.Connection.CreateCommand();
         command.CommandText = """
             SELECT payload
             FROM notebook_pages
@@ -82,7 +81,7 @@ public sealed class SqlitePageStorageService : IPageStorageService, IDisposable
     {
         await EnsureInitializedAsync(cancellationToken);
 
-        await using var command = _databaseContext.Connection.CreateCommand();
+        using var command = _databaseContext.Connection.CreateCommand();
         command.CommandText = """
             SELECT payload
             FROM notebook_pages
@@ -117,7 +116,7 @@ public sealed class SqlitePageStorageService : IPageStorageService, IDisposable
             return;
         }
 
-        await using var command = _databaseContext.Connection.CreateCommand();
+        using var command = _databaseContext.Connection.CreateCommand();
         command.CommandText = """
             CREATE TABLE IF NOT EXISTS notebook_pages (
                 id TEXT PRIMARY KEY NOT NULL,
