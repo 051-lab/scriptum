@@ -1,21 +1,16 @@
 <Page
     x:Class="Scriptum.Views.MainView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:vm="using:Scriptum.ViewModels">
-
-    <Page.DataContext>
-        <vm:MainViewModel />
-    </Page.DataContext>
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="16">
-            <TextBlock Text="{x:Bind ViewModel.ApplicationTitle, Mode=OneWay}" 
-                       FontSize="48" 
+            <TextBlock Text="{x:Bind ViewModel.ApplicationTitle, Mode=OneWay}"
+                       FontSize="48"
                        FontWeight="Bold"
                        HorizontalAlignment="Center" />
-            <TextBlock Text="{x:Bind ViewModel.Subtitle, Mode=OneWay}" 
-                       FontSize="18" 
+            <TextBlock Text="{x:Bind ViewModel.Subtitle, Mode=OneWay}"
+                       FontSize="18"
                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
                        HorizontalAlignment="Center" />
         </StackPanel>
