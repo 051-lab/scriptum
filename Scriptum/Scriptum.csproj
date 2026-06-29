@@ -34,8 +34,4 @@
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlcipher" Version="2.1.11" />
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
-
-  <ItemGroup>
-    <PRIResource Include="Strings\en-US\Resources.resw" />
-  </ItemGroup>
 </Project>
