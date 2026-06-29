@@ -11,7 +11,7 @@ public sealed partial class PageCanvasViewModel : ViewModelBase
     private readonly IPageStorageService _storageService;
 
     public PageCanvasViewModel()
-        : this(new JsonPageStorageService())
+        : this(new SqlitePageStorageService())
     {
     }
 
@@ -80,7 +80,7 @@ public sealed partial class PageCanvasViewModel : ViewModelBase
         try
         {
             await _storageService.SavePageAsync(CurrentPage);
-            StatusMessage = $"Saved {StrokeCount} stroke(s) locally.";
+            StatusMessage = $"Saved {StrokeCount} stroke(s) to the encrypted local notebook store.";
             OnPropertyChanged(nameof(StatusMessage));
         }
         catch (Exception ex)
@@ -109,7 +109,7 @@ public sealed partial class PageCanvasViewModel : ViewModelBase
             }
 
             CurrentPage = page;
-            StatusMessage = $"Loaded page with {StrokeCount} stroke(s).";
+            StatusMessage = $"Loaded page with {StrokeCount} stroke(s) from the encrypted local notebook store.";
             NotifyPageStateChanged();
             OnPropertyChanged(nameof(CurrentPage));
             return page;
