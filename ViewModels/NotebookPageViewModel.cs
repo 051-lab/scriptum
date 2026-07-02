@@ -23,18 +23,20 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
     ];
 
     private readonly IPageStorageService _storageService;
+    private readonly ITranscriptionProvider _transcriptionProvider;
     private readonly string _importDirectory;
     private string _editablePageTitle = "Untitled notebook page";
     private string _correctedTranscriptionDraft = string.Empty;
 
     public NotebookPageViewModel()
-        : this(new SqlitePageStorageService())
+        : this(new SqlitePageStorageService(), new MockTranscriptionProvider())
     {
     }
 
-    public NotebookPageViewModel(IPageStorageService storageService)
+    public NotebookPageViewModel(IPageStorageService storageService, ITranscriptionProvider? transcriptionProvider = null)
     {
         _storageService = storageService;
+        _transcriptionProvider = transcriptionProvider ?? new MockTranscriptionProvider();
         _importDirectory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Scriptum",
@@ -271,7 +273,7 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         }
     }
 
-    public void PrepareTranscription()
+    public async Task TranscribeAsync(CancellationToken cancellationToken = default)
     {
         if (!HasImportedImage)
         {
@@ -280,10 +282,33 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
             return;
         }
 
-        CurrentPage.RawTranscriptionText = "Transcription provider is not wired yet. This page is ready for OCR/transcription preprocessing.";
-        CurrentPage.UpdatedAt = DateTimeOffset.UtcNow;
-        StatusMessage = "Notebook page is ready for the transcription pipeline.";
-        NotifyPageStateChanged();
+        IsLoading = true;
+        ErrorMessage = null;
+
+        try
+        {
+            var result = await _transcriptionProvider.TranscribeAsync(CurrentPage, cancellationToken);
+            CurrentPage.RawTranscriptionText = result.RawText;
+            if (string.IsNullOrWhiteSpace(CurrentPage.CorrectedTranscriptionText)
+                && string.IsNullOrWhiteSpace(CorrectedTranscriptionDraft))
+            {
+                CurrentPage.CorrectedTranscriptionText = result.RawText;
+            }
+
+            CurrentPage.UpdatedAt = DateTimeOffset.UtcNow;
+            await _storageService.SavePageAsync(CurrentPage, cancellationToken);
+            SyncEditableFieldsFromCurrentPage();
+            StatusMessage = $"Generated mock raw transcription with {result.ProviderName}.";
+            NotifyPageStateChanged();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Unable to transcribe page: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
 
     public async Task SaveTextEditsAsync(CancellationToken cancellationToken = default)

@@ -128,12 +128,12 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [ ] Prepare imported page image for OCR/transcription.
 - [ ] Add preprocessing service boundary.
 - [ ] Add OpenCVSharp adapter or equivalent preprocessing adapter.
-- [ ] Add `ITranscriptionProvider` abstraction.
-- [ ] Add mock/local transcription provider for testing.
+- [x] Add `ITranscriptionProvider` abstraction.
+- [x] Add mock/local transcription provider for testing.
 - [ ] Add Qwen-VL provider boundary.
 - [ ] Add transcription UI and correction panel.
 - [x] Persist corrected transcription text.
-- [ ] Persist raw transcription text separately from corrected text.
+- [x] Persist raw transcription text separately from corrected text.
 
 ---
 
@@ -182,8 +182,8 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 8. [x] Add sidebar page navigation.
 9. [ ] Add notebook model.
 10. [ ] Add image preprocessing pipeline.
-11. [ ] Add transcription provider boundary.
-12. [ ] Add transcription UI.
+11. [x] Add transcription provider boundary.
+12. [x] Add transcription UI.
 13. [ ] Add search.
 14. [ ] Add Markdown export.
 15. [ ] Add MSIX packaging.

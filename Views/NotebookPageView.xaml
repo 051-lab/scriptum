@@ -260,7 +260,7 @@
                         </Grid.ColumnDefinitions>
 
                         <Button Content="Transcribe Page"
-                                IsEnabled="False"
+                                Click="TranscribeButton_Click"
                                 HorizontalAlignment="Stretch" />
                         <Button Grid.Column="1"
                                 Content="Format for LLM"

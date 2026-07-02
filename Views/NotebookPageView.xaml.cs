@@ -95,9 +95,21 @@ public sealed partial class NotebookPageView : UserControl
         UpdateEmptyState();
     }
 
-    private void PrepareTranscriptionButton_Click(object sender, RoutedEventArgs e)
+    private async void PrepareTranscriptionButton_Click(object sender, RoutedEventArgs e)
     {
-        ViewModel.PrepareTranscription();
+        await RunTranscriptionAsync();
+    }
+
+    private async void TranscribeButton_Click(object sender, RoutedEventArgs e)
+    {
+        await RunTranscriptionAsync();
+    }
+
+    private async Task RunTranscriptionAsync()
+    {
+        await ViewModel.TranscribeAsync();
+        PageLibraryChanged?.Invoke(this, EventArgs.Empty);
+        Bindings.Update();
         UpdateEmptyState();
     }
 
