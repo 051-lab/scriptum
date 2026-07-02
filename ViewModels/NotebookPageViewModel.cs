@@ -9,7 +9,7 @@ namespace Scriptum.ViewModels;
 /// <summary>
 /// ViewModel backing the first physical notebook page capture MVP.
 /// </summary>
-public sealed partial class PageCanvasViewModel : ViewModelBase
+public sealed partial class NotebookPageViewModel : ViewModelBase
 {
     private static readonly string[] SupportedImageExtensions =
     [
@@ -25,12 +25,12 @@ public sealed partial class PageCanvasViewModel : ViewModelBase
     private readonly IPageStorageService _storageService;
     private readonly string _importDirectory;
 
-    public PageCanvasViewModel()
+    public NotebookPageViewModel()
         : this(new SqlitePageStorageService())
     {
     }
 
-    public PageCanvasViewModel(IPageStorageService storageService)
+    public NotebookPageViewModel(IPageStorageService storageService)
     {
         _storageService = storageService;
         _importDirectory = Path.Combine(
@@ -58,6 +58,10 @@ public sealed partial class PageCanvasViewModel : ViewModelBase
     public string SourceFileLabel => CurrentPage.OriginalFileName ?? "No page imported";
 
     public string ImageDetails => GetImageDetails();
+
+    public string ImageSizeLabel => GetImageSizeLabel();
+
+    public string PageStatusLabel => HasImportedImage ? "Preserved original" : "Ready to import";
 
     public string TranscriptionText => string.IsNullOrWhiteSpace(CurrentPage.TranscriptionText)
         ? "No transcription yet."
@@ -221,6 +225,8 @@ public sealed partial class PageCanvasViewModel : ViewModelBase
         OnPropertyChanged(nameof(PageTitle));
         OnPropertyChanged(nameof(SourceFileLabel));
         OnPropertyChanged(nameof(ImageDetails));
+        OnPropertyChanged(nameof(ImageSizeLabel));
+        OnPropertyChanged(nameof(PageStatusLabel));
         OnPropertyChanged(nameof(TranscriptionText));
         OnPropertyChanged(nameof(ImportedDateLabel));
         OnPropertyChanged(nameof(TranscriptionStatus));
@@ -252,6 +258,24 @@ public sealed partial class PageCanvasViewModel : ViewModelBase
 
         var imported = CurrentPage.ImportedAt?.ToLocalTime().ToString("g") ?? "unknown import time";
         return $"{dimensions} | {size} | imported {imported}";
+    }
+
+    private string GetImageSizeLabel()
+    {
+        if (!HasImportedImage)
+        {
+            return "No image selected";
+        }
+
+        var dimensions = CurrentPage.ImagePixelWidth is not null && CurrentPage.ImagePixelHeight is not null
+            ? $"{CurrentPage.ImagePixelWidth} x {CurrentPage.ImagePixelHeight}px"
+            : "dimensions unknown";
+
+        var size = CurrentPage.SourceImageBytes is not null
+            ? $"{CurrentPage.SourceImageBytes.Value / 1024.0:F1} KB"
+            : "size unknown";
+
+        return $"{dimensions} | {size}";
     }
 
     private static async Task<(int Width, int Height)> ReadImageDimensionsAsync(string imagePath)

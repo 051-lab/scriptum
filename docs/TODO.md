@@ -2,7 +2,7 @@
 
 _Last updated: 2026-07-02_
 
-Scriptum is now in the **buildable first runnable MVP** stage. CI restore and CI build are green. The product direction is to capture or import handwritten notes from physical notebooks, preserve the original page image, and convert those notes into searchable digital text. The current drawing canvas is a development surface and possible future annotation tool, not the primary note-entry workflow.
+Scriptum is now in the **capture-first notebook archive MVP** stage. CI restore and CI build are green. The product direction is to capture or import handwritten notes from physical notebooks, preserve the original page image, and convert those notes into searchable digital text. The drawing-first prototype has been replaced by an import-first notebook page shell.
 
 ## Priority key
 
@@ -36,8 +36,8 @@ Scriptum is now in the **buildable first runnable MVP** stage. CI restore and CI
 - [x] Build from Visual Studio or Windows terminal.
 - [x] Launch the app.
 - [x] Confirm `MainWindow` opens without crashing.
-- [x] Confirm `MainView` displays the notebook canvas.
-- [x] Confirm current UI opens for further MVP replacement work.
+- [x] Confirm `MainView` displays the import-first notebook archive shell.
+- [x] Confirm current UI opens for further MVP work.
 
 ### P0.4 Clean project structure
 
@@ -55,16 +55,16 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 
 ### P1.1 Add page capture/import
 
-- [ ] Add Import Image command.
-- [ ] Support common notebook photo/image formats.
-- [ ] Copy imported page images into local app storage.
-- [ ] Display the imported page image in the main view.
-- [ ] Show basic image metadata: filename, imported timestamp, dimensions.
+- [x] Add Import Image command.
+- [x] Support common notebook photo/image formats.
+- [x] Copy imported page images into local app storage.
+- [x] Display the imported page image in the main view.
+- [x] Show basic image metadata: filename, imported timestamp, dimensions.
 - [ ] Add clear failure messages for unsupported or unreadable files.
 
 ### P1.2 Stabilize physical page model
 
-- [ ] Add physical notebook page model fields: ID, title, source image path, created, updated, imported timestamp.
+- [x] Add physical notebook page model fields: ID, title, source image path, created, updated, imported timestamp.
 - [ ] Add image checksum or content identity for duplicate detection.
 - [ ] Add model versioning.
 - [ ] Prepare metadata for future notebook grouping, transcription, tags, and export.
@@ -172,9 +172,9 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 1. [x] Fix CI restore failure.
 2. [x] Fix compile/build errors.
 3. [x] Confirm local Windows launch.
-4. [ ] Replace the drawing-first surface with an import/capture-first page view.
-5. [ ] Save imported page metadata and image path through SQLCipher-backed storage.
-6. [ ] Load the latest imported page.
+4. [x] Replace the drawing-first surface with an import/capture-first page view.
+5. [x] Save imported page metadata and image path through SQLCipher-backed storage.
+6. [x] Load the latest imported page.
 7. [ ] Add multiple pages.
 8. [ ] Add sidebar page navigation.
 9. [ ] Add notebook model.

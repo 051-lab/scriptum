@@ -1,0 +1,328 @@
+<UserControl
+    x:Class="Scriptum.Views.NotebookPageView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <Style x:Key="MutedTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#AFA89C" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+
+        <Style x:Key="PanelLabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#6F675C" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+
+        <Style x:Key="ArchivePanelStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Padding="24" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Spacing="4">
+                <TextBlock Text="Notebook Page"
+                           Foreground="#F7F1E6"
+                           FontSize="30"
+                           FontWeight="SemiBold" />
+                <TextBlock Text="A preserved handwritten page with a digital text twin."
+                           Style="{StaticResource MutedTextStyle}" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        Spacing="8"
+                        VerticalAlignment="Center">
+                <Button Content="Import Page" Click="ImportImageButton_Click" />
+                <Button Content="Load Latest" Click="LoadLatestButton_Click" />
+                <Button Content="Save" Click="SaveButton_Click" />
+                <Button Content="Transcribe" Click="PrepareTranscriptionButton_Click" />
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="1" ColumnSpacing="18">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.72*" MinWidth="620" />
+                <ColumnDefinition Width="450" />
+            </Grid.ColumnDefinitions>
+
+            <Grid RowSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Border Style="{StaticResource ArchivePanelStyle}"
+                        Background="#24231F"
+                        BorderBrush="#39352D"
+                        Padding="14">
+                    <Grid ColumnSpacing="20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Spacing="3">
+                            <TextBlock Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}"
+                                       Foreground="#F7F1E6"
+                                       FontSize="19"
+                                       FontWeight="SemiBold" />
+                            <TextBlock Text="{x:Bind ViewModel.SourceFileLabel, Mode=OneWay}"
+                                       Style="{StaticResource MutedTextStyle}" />
+                        </StackPanel>
+
+                        <Grid Grid.Column="1" ColumnSpacing="18">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="IMPORTED" Style="{StaticResource PanelLabelStyle}" />
+                                <TextBlock Text="{x:Bind ViewModel.ImportedDateLabel, Mode=OneWay}"
+                                           Foreground="#D6CFC4" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Spacing="2">
+                                <TextBlock Text="IMAGE" Style="{StaticResource PanelLabelStyle}" />
+                                <TextBlock Text="{x:Bind ViewModel.ImageSizeLabel, Mode=OneWay}"
+                                           Foreground="#D6CFC4" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" Spacing="2">
+                                <TextBlock Text="STATUS" Style="{StaticResource PanelLabelStyle}" />
+                                <TextBlock Text="{x:Bind ViewModel.PageStatusLabel, Mode=OneWay}"
+                                           Foreground="#D9B36A"
+                                           FontWeight="SemiBold" />
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="1"
+                        Style="{StaticResource ArchivePanelStyle}"
+                        Background="#11100E"
+                        BorderBrush="#2F2B24"
+                        Padding="22">
+                    <Grid RowSpacing="12">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Original Handwritten Page"
+                                       Foreground="#D6CFC4"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="1"
+                                        Orientation="Horizontal"
+                                        Spacing="8">
+                                <Button Content="Fit" IsEnabled="False" />
+                                <Button Content="Zoom" IsEnabled="False" />
+                                <Button Content="Rotate" IsEnabled="False" />
+                                <Button Content="Open Original" IsEnabled="False" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid Grid.Row="1">
+                            <Border Background="#0B0B0A"
+                                    BorderBrush="#29251F"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="30">
+                                <Grid>
+                                    <Border Background="#F8F4EA"
+                                            BorderBrush="#D8CFBF"
+                                            BorderThickness="1"
+                                            CornerRadius="4"
+                                            Padding="12"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            MaxWidth="900"
+                                            MaxHeight="760">
+                                        <Border.Shadow>
+                                            <ThemeShadow />
+                                        </Border.Shadow>
+                                        <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                                      VerticalScrollBarVisibility="Auto"
+                                                      ZoomMode="Enabled">
+                                            <Image Source="{x:Bind ViewModel.PageImage, Mode=OneWay}"
+                                                   Stretch="Uniform"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center" />
+                                        </ScrollViewer>
+                                    </Border>
+
+                                    <Border x:Name="EmptyState"
+                                            Background="#24231F"
+                                            BorderBrush="#3B372F"
+                                            BorderThickness="1"
+                                            CornerRadius="8"
+                                            Padding="28"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            MaxWidth="460">
+                                        <StackPanel Spacing="14">
+                                            <TextBlock Text="Import a physical notebook page"
+                                                       Foreground="#F7F1E6"
+                                                       FontSize="22"
+                                                       FontWeight="SemiBold"
+                                                       TextAlignment="Center" />
+                                            <TextBlock Text="Choose a photo or scan. Scriptum keeps the handwriting visible while preparing a digital text counterpart."
+                                                       TextWrapping="Wrap"
+                                                       TextAlignment="Center"
+                                                       Foreground="#AFA89C" />
+                                            <Button Content="Import Page"
+                                                    Click="ImportImageButton_Click"
+                                                    HorizontalAlignment="Center" />
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <Border Grid.Column="1"
+                    Style="{StaticResource ArchivePanelStyle}"
+                    Background="#F3EEE4"
+                    BorderBrush="#D7CDBE"
+                    Padding="18">
+                <Grid RowSpacing="14">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Digital Text"
+                                   Foreground="#211F1A"
+                                   FontSize="24"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Text="The editable counterpart to the handwritten page."
+                                   Foreground="#6F675C"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+
+                    <Border Grid.Row="1"
+                            Background="#E8DFD1"
+                            BorderBrush="#D4C7B7"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="12">
+                        <StackPanel Spacing="7">
+                            <TextBlock Text="PAGE DETAILS" Style="{StaticResource PanelLabelStyle}" />
+                            <TextBlock Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}"
+                                       Foreground="#211F1A"
+                                       FontWeight="SemiBold"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Text="{x:Bind ViewModel.ImageDetails, Mode=OneWay}"
+                                       Foreground="#6F675C"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Text="{x:Bind ViewModel.TranscriptionStatus, Mode=OneWay}"
+                                       Foreground="#7D5D1B"
+                                       FontWeight="SemiBold" />
+                        </StackPanel>
+                    </Border>
+
+                    <Grid Grid.Row="2" ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Content="Transcribe Page"
+                                IsEnabled="False"
+                                HorizontalAlignment="Stretch" />
+                        <Button Grid.Column="1"
+                                Content="Format for LLM"
+                                IsEnabled="False"
+                                HorizontalAlignment="Stretch" />
+                    </Grid>
+
+                    <Grid Grid.Row="3" RowSpacing="12">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Spacing="7">
+                            <TextBlock Text="Raw Transcription"
+                                       Foreground="#211F1A"
+                                       FontWeight="SemiBold" />
+                            <TextBox Text="{x:Bind ViewModel.RawTranscriptionText, Mode=OneWay}"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     IsReadOnly="True"
+                                     MinHeight="185" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Spacing="7">
+                            <TextBlock Text="Corrected Text"
+                                       Foreground="#211F1A"
+                                       FontWeight="SemiBold" />
+                            <TextBox Text="{x:Bind ViewModel.CorrectedTranscriptionText, Mode=OneWay}"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     IsReadOnly="True"
+                                     MinHeight="185" />
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Grid.Row="4" ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Content="Copy Text"
+                                IsEnabled="False"
+                                HorizontalAlignment="Stretch" />
+                        <Button Grid.Column="1"
+                                Content="Save Correction"
+                                IsEnabled="False"
+                                HorizontalAlignment="Stretch" />
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="2"
+                Style="{StaticResource ArchivePanelStyle}"
+                Background="#24231F"
+                BorderBrush="#39352D"
+                Padding="12">
+            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
+                       Foreground="#D6CFC4" />
+        </Border>
+    </Grid>
+</UserControl>

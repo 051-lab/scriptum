@@ -9,11 +9,11 @@ namespace Scriptum.Views;
 /// <summary>
 /// Import-first surface for physical notebook pages.
 /// </summary>
-public sealed partial class PageCanvasView : UserControl
+public sealed partial class NotebookPageView : UserControl
 {
-    public PageCanvasViewModel ViewModel { get; } = new();
+    public NotebookPageViewModel ViewModel { get; } = new();
 
-    public PageCanvasView()
+    public NotebookPageView()
     {
         InitializeComponent();
         DataContext = ViewModel;

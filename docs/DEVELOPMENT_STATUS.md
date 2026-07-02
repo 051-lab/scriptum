@@ -1,93 +1,80 @@
 # Scriptum Development Status
 
-_Last updated: 2026-06-29_
+_Last updated: 2026-07-02_
 
 ## Current stage
 
-Scriptum is in the **early MVP foundation** stage. The repository is no longer just a concept README: it now has a WinUI app shell, a notebook canvas MVP, vector ink models, local page persistence abstractions, and a SQLCipher-backed storage service. However, it is **not yet a working end-user application** because CI is still blocked at restore/build validation.
+Scriptum is in the **capture-first notebook archive MVP** stage. The app builds locally, launches on Windows, imports notebook page images, displays the original handwritten page as the primary artifact, and keeps a placeholder transcription workspace beside it.
+
+The product direction is no longer an in-app handwriting canvas. Scriptum is for importing or capturing pages from physical notebooks, preserving the original image, and turning the handwriting into usable digital text.
 
 ## Progress estimate
 
 | Layer | Status | Notes |
 | --- | --- | --- |
-| Product concept | Strong | Premium local-first Windows notebook with handwritten note transcription. |
-| App shell | In progress | WinUI app shell and main view are present. |
-| Notebook canvas | Early MVP | Pointer-driven drawing canvas exists with undo, clear, save, and load-latest controls. |
-| Ink data model | Early MVP | Editable vector stroke models exist. |
-| Local persistence | Early MVP | JSON fallback exists; SQLCipher-backed page storage has been added. |
-| Build/CI | Blocked | GitHub Actions currently fails during restore before compile errors can surface. |
-| Encryption/key management | Prototype only | Database key can come from `SCRIPTUM_DATABASE_KEY`, but a production key vault/TPM flow is still needed. |
-| Transcription pipeline | Not started | OpenCV preprocessing, handwriting image generation, Qwen-VL adapter, and correction UI are still missing. |
-| Notebook management | Not started | Multiple notebooks, page lists, rename/delete, tags, and search are still missing. |
+| Product concept | Strong | Private physical-notebook archive with digital transcription counterpart. |
+| App shell | In progress | Warm/dark notebook archive shell with left library, center page artifact, and right transcription workspace. |
+| Page import | Early MVP | Image import copies supported files into local app storage and displays the imported page. |
+| Local persistence | Early MVP | SQLCipher-backed page payload storage saves and loads the latest imported page metadata. |
+| Build/local launch | Working locally | Restore and Release x64 build pass locally; the app launches from Windows. |
+| Transcription workspace | Placeholder | UI communicates raw/corrected text flow, but no AI/OCR provider is wired yet. |
+| Notebook management | Not started | Sidebar notebooks/projects are placeholders; page list, rename/delete, tags, and search are still missing. |
 | Export/import | Not started | Markdown/PDF/image export and backup/restore flows are still missing. |
-| Packaging/release | Not started | App icons, MSIX signing, installer/release pipeline, and versioning are still missing. |
+| Packaging/release | Not started | App icons, MSIX signing, installer/release pipeline, and versioning still need work. |
 
-## Honest completion estimate
-
-Scriptum is approximately **20–25% of the way to a usable MVP**.
-
-It is closer to **10–15% of the way to the full premium vision** described in the README, because handwriting transcription, AI cleanup, notebook organization, search, export, and production-grade security still need to be built.
-
-## What should be considered a usable MVP?
+## Usable MVP target
 
 A usable MVP should allow someone to:
 
 1. Launch the Windows app reliably.
-2. Create or open a notebook.
-3. Draw handwritten notes on a page.
-4. Save and reload editable vector ink.
-5. Maintain multiple pages.
-6. Run a first transcription pass on a page or selected region.
+2. Import a photo or scan from a physical notebook.
+3. Preserve and view the original page image.
+4. Save and reload imported page metadata through encrypted local storage.
+5. Browse all saved pages from the sidebar.
+6. Run a first transcription pass on an imported page image.
 7. Edit/correct the transcription.
-8. Search saved transcriptions.
-9. Export a page to a useful format.
+8. Copy or format the transcription for LLMs, GitHub, docs, Codex, or project planning.
+9. Search saved corrected transcriptions.
 
 ## Current blockers
 
-1. **CI restore/build validation**  
-   The app cannot be considered stable until GitHub Actions reaches a clean restore/build.
+1. **Real page library**
+   The app can load the latest page, but it does not yet list all saved pages.
 
-2. **Dependency alignment**  
-   The project has moved from `Win2D.uwp` to `Microsoft.Graphics.Win2D`, and Windows App SDK has been updated, but restore is still failing and needs a precise fix.
+2. **Normalized persistence**
+   Current storage saves a whole page payload. Later versions should split notebooks, imported pages, page images, transcription records, tags, and search indexes into separate persisted entities.
 
-3. **Real notebook architecture**  
-   Current page persistence saves a whole page payload. That is acceptable for an early MVP, but later versions should split notebooks, pages, strokes, transcription jobs, and search indexes into separate persisted entities.
+3. **Transcription provider**
+   The transcription workspace is present, but OCR/preprocessing and AI provider boundaries still need implementation.
 
-4. **Production security**  
+4. **Production security**
    `SCRIPTUM_DATABASE_KEY` is better than an inline-only key, but a production app needs a secure key-management layer.
 
 ## Next engineering milestones
 
-### Milestone 1: Buildable app
+### Milestone 1: Page library
 
-- Get `dotnet restore` passing in CI.
-- Get `dotnet build` passing in CI.
-- Fix XAML/code-behind compile issues surfaced by the build.
-- Confirm the app launches locally on Windows.
+- List all imported pages from SQLCipher-backed storage.
+- Select prior pages from the sidebar.
+- Add page title editing, delete behavior, and basic metadata display.
 
-### Milestone 2: Notebook MVP
+### Milestone 2: Imported page persistence
 
-- Add notebook and page models.
-- Add a page list/sidebar.
-- Add create/rename/delete page controls.
-- Persist pages through SQLCipher storage.
-- Reload saved pages reliably.
+- Normalize imported page, page image, and transcription records.
+- Add schema versioning/migrations.
+- Add corrupt-payload and missing-image handling.
 
 ### Milestone 3: Transcription MVP
 
-- Render page/region ink to an image buffer.
-- Add preprocessing service boundary for OpenCV.
-- Add AI provider boundary for Qwen-VL or other vision model providers.
-- Store transcription results with page metadata.
-- Add correction UI.
+- Add preprocessing service boundary for imported page images.
+- Add `ITranscriptionProvider`.
+- Add mock transcription provider for UI testing.
+- Add Qwen or other vision-model provider.
+- Store raw and corrected transcription text.
 
 ### Milestone 4: Useful personal notebook
 
 - Search transcriptions.
-- Add tags and page metadata.
+- Add tags and project metadata.
 - Export Markdown/PDF/images.
 - Add backup/import/export.
-
-## Current recommendation
-
-Do not merge this PR as a production-ready feature yet. Keep using it as the stabilization/MVP branch until restore and build are green. Once CI is green, merge this branch into `main`, then start the notebook-management milestone in a smaller follow-up PR.
