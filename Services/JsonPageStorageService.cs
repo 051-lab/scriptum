@@ -62,5 +62,23 @@ public sealed class JsonPageStorageService : IPageStorageService
         return await JsonSerializer.DeserializeAsync<NotebookPage>(stream, _jsonOptions, cancellationToken);
     }
 
+    public async Task<IReadOnlyList<NotebookPage>> LoadPagesAsync(CancellationToken cancellationToken = default)
+    {
+        var pages = new List<NotebookPage>();
+        foreach (var path in Directory
+            .EnumerateFiles(_pagesDirectory, "*.json", SearchOption.TopDirectoryOnly)
+            .OrderByDescending(File.GetLastWriteTimeUtc))
+        {
+            await using var stream = File.OpenRead(path);
+            var page = await JsonSerializer.DeserializeAsync<NotebookPage>(stream, _jsonOptions, cancellationToken);
+            if (page is not null)
+            {
+                pages.Add(page);
+            }
+        }
+
+        return pages;
+    }
+
     private string GetPagePath(Guid pageId) => Path.Combine(_pagesDirectory, $"{pageId:N}.json");
 }

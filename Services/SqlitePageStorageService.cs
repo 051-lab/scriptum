@@ -98,6 +98,31 @@ public sealed class SqlitePageStorageService : IPageStorageService, IDisposable
         return DeserializePage(reader);
     }
 
+    public async Task<IReadOnlyList<NotebookPage>> LoadPagesAsync(CancellationToken cancellationToken = default)
+    {
+        await EnsureInitializedAsync(cancellationToken);
+
+        using var command = _databaseContext.Connection.CreateCommand();
+        command.CommandText = """
+            SELECT payload
+            FROM notebook_pages
+            ORDER BY updated_at DESC;
+            """;
+
+        var pages = new List<NotebookPage>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            var page = DeserializePage(reader);
+            if (page is not null)
+            {
+                pages.Add(page);
+            }
+        }
+
+        return pages;
+    }
+
     public void Dispose()
     {
         if (_disposed)

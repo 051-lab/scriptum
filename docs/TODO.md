@@ -73,10 +73,12 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 
 - [ ] Confirm encrypted database opens.
 - [ ] Confirm physical page table is created.
-- [ ] Save imported page metadata from the UI.
+- [x] Save imported page metadata from the UI.
 - [ ] Close and reopen the app.
-- [ ] Load the latest page.
-- [ ] Confirm the page image and metadata restore correctly.
+- [x] Load the latest page.
+- [x] Confirm the page image and metadata restore correctly.
+- [x] List imported pages from encrypted local storage.
+- [x] Select an imported page from the sidebar.
 - [ ] Add clear database failure messages.
 - [ ] Add corrupt-payload handling.
 
@@ -102,7 +104,7 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 
 ## Phase 2: MVP navigation and daily usability
 
-- [ ] Add sidebar page navigation.
+- [x] Add sidebar page navigation.
 - [ ] Add import queue or recent imports list.
 - [ ] Add basic image rotate/crop workflow for photographed notebook pages.
 - [ ] Add page title editing.
@@ -175,8 +177,8 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 4. [x] Replace the drawing-first surface with an import/capture-first page view.
 5. [x] Save imported page metadata and image path through SQLCipher-backed storage.
 6. [x] Load the latest imported page.
-7. [ ] Add multiple pages.
-8. [ ] Add sidebar page navigation.
+7. [x] Add multiple imported pages to the local page library.
+8. [x] Add sidebar page navigation.
 9. [ ] Add notebook model.
 10. [ ] Add image preprocessing pipeline.
 11. [ ] Add transcription provider boundary.

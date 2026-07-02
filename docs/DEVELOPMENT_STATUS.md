@@ -4,7 +4,7 @@ _Last updated: 2026-07-02_
 
 ## Current stage
 
-Scriptum is in the **capture-first notebook archive MVP** stage. The app builds locally, launches on Windows, imports notebook page images, displays the original handwritten page as the primary artifact, and keeps a placeholder transcription workspace beside it.
+Scriptum is in the **capture-first notebook archive MVP** stage. The app builds locally, launches on Windows, imports notebook page images, displays the original handwritten page as the primary artifact, lists imported pages in the sidebar, and keeps a placeholder transcription workspace beside it.
 
 The product direction is no longer an in-app handwriting canvas. Scriptum is for importing or capturing pages from physical notebooks, preserving the original image, and turning the handwriting into usable digital text.
 
@@ -15,10 +15,10 @@ The product direction is no longer an in-app handwriting canvas. Scriptum is for
 | Product concept | Strong | Private physical-notebook archive with digital transcription counterpart. |
 | App shell | In progress | Warm/dark notebook archive shell with left library, center page artifact, and right transcription workspace. |
 | Page import | Early MVP | Image import copies supported files into local app storage and displays the imported page. |
-| Local persistence | Early MVP | SQLCipher-backed page payload storage saves and loads the latest imported page metadata. |
+| Local persistence | Early MVP | SQLCipher-backed page payload storage saves imported page metadata, lists imported pages, and loads selected pages. |
 | Build/local launch | Working locally | Restore and Release x64 build pass locally; the app launches from Windows. |
 | Transcription workspace | Placeholder | UI communicates raw/corrected text flow, but no AI/OCR provider is wired yet. |
-| Notebook management | Not started | Sidebar notebooks/projects are placeholders; page list, rename/delete, tags, and search are still missing. |
+| Notebook management | Early MVP | Sidebar page list works for imported pages; notebook/project groups are placeholders and rename/delete/tags are still missing. |
 | Export/import | Not started | Markdown/PDF/image export and backup/restore flows are still missing. |
 | Packaging/release | Not started | App icons, MSIX signing, installer/release pipeline, and versioning still need work. |
 
@@ -38,25 +38,22 @@ A usable MVP should allow someone to:
 
 ## Current blockers
 
-1. **Real page library**
-   The app can load the latest page, but it does not yet list all saved pages.
-
-2. **Normalized persistence**
+1. **Normalized persistence**
    Current storage saves a whole page payload. Later versions should split notebooks, imported pages, page images, transcription records, tags, and search indexes into separate persisted entities.
 
-3. **Transcription provider**
+2. **Transcription provider**
    The transcription workspace is present, but OCR/preprocessing and AI provider boundaries still need implementation.
 
-4. **Production security**
+3. **Production security**
    `SCRIPTUM_DATABASE_KEY` is better than an inline-only key, but a production app needs a secure key-management layer.
 
 ## Next engineering milestones
 
 ### Milestone 1: Page library
 
-- List all imported pages from SQLCipher-backed storage.
-- Select prior pages from the sidebar.
-- Add page title editing, delete behavior, and basic metadata display.
+- List all imported pages from SQLCipher-backed storage. — complete
+- Select prior pages from the sidebar. — complete
+- Add page title editing, delete behavior, and richer metadata display.
 
 ### Milestone 2: Imported page persistence
 

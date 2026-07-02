@@ -11,12 +11,28 @@ namespace Scriptum.Views;
 /// </summary>
 public sealed partial class NotebookPageView : UserControl
 {
-    public NotebookPageViewModel ViewModel { get; } = new();
+    public event EventHandler? PageLibraryChanged;
+
+    public NotebookPageViewModel ViewModel { get; private set; } = new();
 
     public NotebookPageView()
     {
         InitializeComponent();
         DataContext = ViewModel;
+        UpdateEmptyState();
+    }
+
+    public void SetViewModel(NotebookPageViewModel viewModel)
+    {
+        ViewModel = viewModel;
+        DataContext = ViewModel;
+        Bindings.Update();
+        UpdateEmptyState();
+    }
+
+    public void RefreshView()
+    {
+        Bindings.Update();
         UpdateEmptyState();
     }
 
@@ -47,18 +63,26 @@ public sealed partial class NotebookPageView : UserControl
         }
 
         await ViewModel.ImportImageAsync(file.Path);
+        if (ViewModel.HasImportedImage)
+        {
+            await ViewModel.SaveAsync();
+            PageLibraryChanged?.Invoke(this, EventArgs.Empty);
+        }
+
         UpdateEmptyState();
     }
 
     private async void SaveButton_Click(object sender, RoutedEventArgs e)
     {
         await ViewModel.SaveAsync();
+        PageLibraryChanged?.Invoke(this, EventArgs.Empty);
         UpdateEmptyState();
     }
 
     private async void LoadLatestButton_Click(object sender, RoutedEventArgs e)
     {
         await ViewModel.LoadLatestAsync();
+        PageLibraryChanged?.Invoke(this, EventArgs.Empty);
         UpdateEmptyState();
     }
 

@@ -202,6 +202,39 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         }
     }
 
+    public async Task<NotebookPage?> LoadPageAsync(Guid pageId, CancellationToken cancellationToken = default)
+    {
+        IsLoading = true;
+        ErrorMessage = null;
+
+        try
+        {
+            var page = await _storageService.LoadPageAsync(pageId, cancellationToken);
+            if (page is null)
+            {
+                StatusMessage = "The selected page could not be found.";
+                OnPropertyChanged(nameof(StatusMessage));
+                return null;
+            }
+
+            CurrentPage = page;
+            RefreshPageImage();
+            StatusMessage = "Loaded notebook page from the encrypted local index.";
+            NotifyPageStateChanged();
+            OnPropertyChanged(nameof(CurrentPage));
+            return page;
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Unable to load page: {ex.Message}";
+            return null;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
     public void PrepareTranscription()
     {
         if (!HasImportedImage)
