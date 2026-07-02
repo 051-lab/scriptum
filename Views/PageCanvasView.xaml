@@ -6,125 +6,221 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Border Padding="24">
-        <Grid RowSpacing="16">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+    <Grid Padding="24" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
 
-            <Grid ColumnSpacing="16">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+        <Grid ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
 
-                <StackPanel Spacing="4">
-                    <TextBlock Text="Notebook Capture"
-                               FontSize="28"
-                               FontWeight="SemiBold" />
-                    <TextBlock Text="{x:Bind ViewModel.ImageDetails, Mode=OneWay}"
-                               Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}" />
-                </StackPanel>
+            <StackPanel Spacing="4">
+                <TextBlock Text="Notebook Page"
+                           Foreground="#F7F1E6"
+                           FontSize="30"
+                           FontWeight="SemiBold" />
+                <TextBlock Text="Preserve the original handwriting, then turn it into usable digital text."
+                           Foreground="#AFA89C" />
+            </StackPanel>
 
-                <StackPanel Grid.Column="1"
-                            Orientation="Horizontal"
-                            Spacing="8"
-                            VerticalAlignment="Center">
-                    <Button Content="Import Image" Click="ImportImageButton_Click" />
-                    <Button Content="Load Latest" Click="LoadLatestButton_Click" />
-                    <Button Content="Save" Click="SaveButton_Click" />
-                    <Button Content="Prepare Transcription" Click="PrepareTranscriptionButton_Click" />
-                </StackPanel>
-            </Grid>
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        Spacing="8"
+                        VerticalAlignment="Center">
+                <Button Content="Import Image" Click="ImportImageButton_Click" />
+                <Button Content="Load Latest" Click="LoadLatestButton_Click" />
+                <Button Content="Save" Click="SaveButton_Click" />
+                <Button Content="Transcribe" Click="PrepareTranscriptionButton_Click" />
+            </StackPanel>
+        </Grid>
 
-            <Grid Grid.Row="1" ColumnSpacing="16">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
+        <Grid Grid.Row="1" ColumnSpacing="18">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.7*" MinWidth="560" />
+                <ColumnDefinition Width="440" />
+            </Grid.ColumnDefinitions>
 
-                <Border Background="White"
-                        BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}"
-                        BorderThickness="1"
-                        CornerRadius="8">
-                    <Grid MinHeight="620">
-                        <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                                      VerticalScrollBarVisibility="Auto"
-                                      ZoomMode="Enabled">
-                            <Image Source="{x:Bind ViewModel.PageImage, Mode=OneWay}"
-                                   Stretch="Uniform"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center" />
-                        </ScrollViewer>
+            <Grid RowSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
-                        <StackPanel x:Name="EmptyState"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Spacing="8">
-                            <TextBlock Text="No notebook page imported"
-                                       FontSize="20"
-                                       FontWeight="SemiBold"
-                                       TextAlignment="Center" />
-                            <TextBlock Text="Use Import Image to select a photo or scan from your physical notebook."
-                                       TextAlignment="Center"
-                                       Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}" />
-                        </StackPanel>
-                    </Grid>
-                </Border>
-
-                <Border Grid.Column="1"
-                        BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}"
+                <Border Background="#24231F"
+                        BorderBrush="#39352D"
                         BorderThickness="1"
                         CornerRadius="8"
-                        Padding="16">
-                    <Grid RowSpacing="16">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
+                        Padding="14">
+                    <Grid ColumnSpacing="18">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
 
-                        <StackPanel Spacing="6">
+                        <StackPanel Spacing="3">
                             <TextBlock Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}"
-                                       FontSize="20"
+                                       Foreground="#F7F1E6"
+                                       FontSize="18"
                                        FontWeight="SemiBold" />
                             <TextBlock Text="{x:Bind ViewModel.SourceFileLabel, Mode=OneWay}"
                                        TextWrapping="Wrap"
-                                       Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}" />
+                                       Foreground="#AFA89C" />
                         </StackPanel>
 
-                        <Border Grid.Row="1"
-                                Background="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                Padding="12"
-                                CornerRadius="8">
-                            <TextBlock Text="{x:Bind ViewModel.ImageDetails, Mode=OneWay}"
-                                       TextWrapping="Wrap" />
+                        <StackPanel Grid.Column="1"
+                                    Spacing="3"
+                                    HorizontalAlignment="Right">
+                            <TextBlock Text="{x:Bind ViewModel.TranscriptionStatus, Mode=OneWay}"
+                                       Foreground="#D9B36A"
+                                       FontWeight="SemiBold"
+                                       HorizontalAlignment="Right" />
+                            <TextBlock Text="{x:Bind ViewModel.ImportedDateLabel, Mode=OneWay}"
+                                       Foreground="#AFA89C"
+                                       HorizontalAlignment="Right" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="1"
+                        Background="#10100F"
+                        BorderBrush="#2F2B24"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="30">
+                    <Grid>
+                        <Border Background="#F8F4EA"
+                                BorderBrush="#D8CFBF"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                Padding="10"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                MaxWidth="900"
+                                MaxHeight="760">
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                          VerticalScrollBarVisibility="Auto"
+                                          ZoomMode="Enabled">
+                                <Image Source="{x:Bind ViewModel.PageImage, Mode=OneWay}"
+                                       Stretch="Uniform"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                            </ScrollViewer>
                         </Border>
 
-                        <StackPanel Grid.Row="2" Spacing="8">
-                            <TextBlock Text="Transcription"
-                                       FontSize="18"
-                                       FontWeight="SemiBold" />
-                            <TextBox Text="{x:Bind ViewModel.TranscriptionText, Mode=OneWay}"
-                                     AcceptsReturn="True"
-                                     TextWrapping="Wrap"
-                                     IsReadOnly="True"
-                                     MinHeight="280" />
-                        </StackPanel>
+                        <Border x:Name="EmptyState"
+                                Background="#24231F"
+                                BorderBrush="#3B372F"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="28"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                MaxWidth="420">
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="No page imported"
+                                           Foreground="#F7F1E6"
+                                           FontSize="22"
+                                           FontWeight="SemiBold"
+                                           TextAlignment="Center" />
+                                <TextBlock Text="Import a photo or scan from your physical notebook to start building the archive."
+                                           TextWrapping="Wrap"
+                                           TextAlignment="Center"
+                                           Foreground="#AFA89C" />
+                            </StackPanel>
+                        </Border>
                     </Grid>
                 </Border>
             </Grid>
 
-            <Grid Grid.Row="2" ColumnSpacing="16">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
+            <Border Grid.Column="1"
+                    Background="#F3EEE4"
+                    BorderBrush="#D7CDBE"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="18">
+                <Grid RowSpacing="14">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-                <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
-                           Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}" />
-            </Grid>
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Transcription Workspace"
+                                   Foreground="#211F1A"
+                                   FontSize="22"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Text="{x:Bind ViewModel.ImageDetails, Mode=OneWay}"
+                                   TextWrapping="Wrap"
+                                   Foreground="#6F675C" />
+                    </StackPanel>
+
+                    <Grid Grid.Row="1" ColumnSpacing="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Content="Copy Text"
+                                IsEnabled="False"
+                                HorizontalAlignment="Stretch" />
+                        <Button Grid.Column="1"
+                                Content="Save Correction"
+                                IsEnabled="False"
+                                HorizontalAlignment="Stretch" />
+                    </Grid>
+
+                    <Grid Grid.Row="2" RowSpacing="12">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Spacing="7">
+                            <TextBlock Text="Raw Transcription"
+                                       Foreground="#211F1A"
+                                       FontWeight="SemiBold" />
+                            <TextBox Text="{x:Bind ViewModel.RawTranscriptionText, Mode=OneWay}"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     IsReadOnly="True"
+                                     MinHeight="190" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Spacing="7">
+                            <TextBlock Text="Corrected Notes"
+                                       Foreground="#211F1A"
+                                       FontWeight="SemiBold" />
+                            <TextBox Text="{x:Bind ViewModel.CorrectedTranscriptionText, Mode=OneWay}"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     IsReadOnly="True"
+                                     MinHeight="190" />
+                        </StackPanel>
+                    </Grid>
+
+                    <Button Grid.Row="3"
+                            Content="Transcribe Page"
+                            IsEnabled="False"
+                            HorizontalAlignment="Stretch" />
+                </Grid>
+            </Border>
         </Grid>
-    </Border>
+
+        <Border Grid.Row="2"
+                Background="#24231F"
+                BorderBrush="#39352D"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="12">
+            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
+                       Foreground="#D6CFC4" />
+        </Border>
+    </Grid>
 </UserControl>

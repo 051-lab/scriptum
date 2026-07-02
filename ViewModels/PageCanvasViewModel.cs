@@ -63,6 +63,20 @@ public sealed partial class PageCanvasViewModel : ViewModelBase
         ? "No transcription yet."
         : CurrentPage.TranscriptionText;
 
+    public string ImportedDateLabel => CurrentPage.ImportedAt?.ToLocalTime().ToString("f") ?? "Not imported yet";
+
+    public string TranscriptionStatus => string.IsNullOrWhiteSpace(CurrentPage.TranscriptionText)
+        ? "Waiting for transcription"
+        : "Draft ready";
+
+    public string RawTranscriptionText => string.IsNullOrWhiteSpace(CurrentPage.TranscriptionText)
+        ? "Raw handwriting transcription will appear here after a provider is connected."
+        : CurrentPage.TranscriptionText;
+
+    public string CorrectedTranscriptionText => string.IsNullOrWhiteSpace(CurrentPage.TranscriptionText)
+        ? "Corrected, copy-ready notes will appear here after review."
+        : CurrentPage.TranscriptionText;
+
     public async Task ImportImageAsync(string sourceImagePath, CancellationToken cancellationToken = default)
     {
         IsLoading = true;
@@ -208,6 +222,10 @@ public sealed partial class PageCanvasViewModel : ViewModelBase
         OnPropertyChanged(nameof(SourceFileLabel));
         OnPropertyChanged(nameof(ImageDetails));
         OnPropertyChanged(nameof(TranscriptionText));
+        OnPropertyChanged(nameof(ImportedDateLabel));
+        OnPropertyChanged(nameof(TranscriptionStatus));
+        OnPropertyChanged(nameof(RawTranscriptionText));
+        OnPropertyChanged(nameof(CorrectedTranscriptionText));
     }
 
     private void RefreshPageImage()

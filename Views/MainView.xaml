@@ -4,25 +4,89 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:views="using:Scriptum.Views">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <Grid Background="#151515">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
-        <Border Padding="24,18"
-                BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}"
-                BorderThickness="0,0,0,1">
-            <StackPanel Spacing="4">
-                <TextBlock Text="{x:Bind ViewModel.ApplicationTitle, Mode=OneWay}"
-                           FontSize="34"
-                           FontWeight="Bold" />
+        <Border Background="#20201E"
+                BorderBrush="#35332F"
+                BorderThickness="0,0,1,0"
+                Padding="22">
+            <Grid RowSpacing="24">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Spacing="6">
+                    <TextBlock Text="{x:Bind ViewModel.ApplicationTitle, Mode=OneWay}"
+                               Foreground="#F7F1E6"
+                               FontSize="30"
+                               FontWeight="SemiBold" />
+                    <TextBlock Text="Private notebook archive"
+                               Foreground="#AFA89C"
+                               FontSize="13" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Spacing="10">
+                    <TextBlock Text="Capture Library"
+                               Foreground="#F7F1E6"
+                               FontSize="18"
+                               FontWeight="SemiBold" />
+                    <TextBlock Text="Library"
+                               Foreground="#81796C"
+                               FontSize="12"
+                               FontWeight="SemiBold" />
+                    <RadioButton Content="All Pages"
+                                 IsChecked="True"
+                                 Foreground="#F7F1E6" />
+                    <RadioButton Content="Recent"
+                                 Foreground="#D6CFC4" />
+                    <RadioButton Content="Favorites"
+                                 Foreground="#D6CFC4" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Spacing="10">
+                    <TextBlock Text="Notebooks"
+                               Foreground="#81796C"
+                               FontSize="12"
+                               FontWeight="SemiBold" />
+                    <TextBlock Text="Development Notes"
+                               Foreground="#D6CFC4" />
+                    <TextBlock Text="Project Planning"
+                               Foreground="#D6CFC4" />
+                    <TextBlock Text="Ideas to Process"
+                               Foreground="#D6CFC4" />
+                    <Border Background="#2A2926"
+                            BorderBrush="#3A3833"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="12"
+                            Margin="0,12,0,0">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Next"
+                                       Foreground="#F7F1E6"
+                                       FontWeight="SemiBold" />
+                            <TextBlock Text="Import pages, transcribe handwriting, then copy usable text into your development workflow."
+                                       TextWrapping="Wrap"
+                                       Foreground="#AFA89C"
+                                       FontSize="12" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
                 <TextBlock Text="{x:Bind ViewModel.Subtitle, Mode=OneWay}"
-                           FontSize="16"
-                           Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}" />
-            </StackPanel>
+                           Grid.Row="3"
+                           TextWrapping="Wrap"
+                           FontSize="12"
+                           Foreground="#AFA89C" />
+            </Grid>
         </Border>
 
-        <views:PageCanvasView Grid.Row="1" />
+        <views:PageCanvasView Grid.Column="1" />
     </Grid>
 </Page>
