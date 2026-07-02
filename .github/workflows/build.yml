@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - stabilize-build-foundation
   pull_request:
     branches:
       - main
@@ -29,7 +28,7 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path artifacts | Out-Null
-          dotnet restore Scriptum/Scriptum.csproj -p:Platform=x64 --verbosity normal > artifacts/restore.log 2>&1
+          dotnet restore Scriptum.csproj -p:Platform=x64 --verbosity normal > artifacts/restore.log 2>&1
           $restoreExitCode = $LASTEXITCODE
           Get-Content artifacts/restore.log -Tail 120
           if ($restoreExitCode -ne 0) {
@@ -48,7 +47,7 @@ jobs:
       - name: Build
         shell: pwsh
         run: |
-          dotnet build Scriptum/Scriptum.csproj --configuration Release --no-restore -p:Platform=x64 --verbosity normal > artifacts/build.log 2>&1
+          dotnet build Scriptum.csproj --configuration Release --no-restore -p:Platform=x64 --verbosity normal > artifacts/build.log 2>&1
           $buildExitCode = $LASTEXITCODE
           Get-Content artifacts/build.log -Tail 160
           if ($buildExitCode -ne 0) {
