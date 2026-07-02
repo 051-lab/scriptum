@@ -1,9 +1,9 @@
 # scriptum
-A premium Windows digital notebook app - handwritten note-to-digital transcription using WinUI 3, Win2D, OpenCVSharp, and Qwen-VL.
+A premium Windows app for capturing handwritten notebook pages, turning them into searchable digital notes, and preserving the original page image alongside transcription.
 
 ## Local development setup
 
-Scriptum is a Windows desktop app built with C#, .NET 8, WinUI 3, Windows App SDK, Win2D, and SQLCipher-backed SQLite storage. The active project and solution live at the repository root:
+Scriptum is a Windows desktop app built with C#, .NET 8, WinUI 3, Windows App SDK, Win2D, and SQLCipher-backed SQLite storage. The active MVP direction is importing or capturing handwritten notes from physical notebooks, not requiring users to handwrite notes inside the application. The active project and solution live at the repository root:
 
 - `Scriptum.csproj`
 - `Scriptum.sln`

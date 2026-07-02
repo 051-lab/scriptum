@@ -1,8 +1,8 @@
 # Scriptum Prioritized Development Todo
 
-_Last updated: 2026-06-29_
+_Last updated: 2026-07-02_
 
-Scriptum is now in the **buildable first runnable MVP** stage. CI restore and CI build are green. The next priority is proving the app launches locally on Windows and that the notebook canvas can draw, save, close, reopen, and reload ink.
+Scriptum is now in the **buildable first runnable MVP** stage. CI restore and CI build are green. The product direction is to capture or import handwritten notes from physical notebooks, preserve the original page image, and convert those notes into searchable digital text. The current drawing canvas is a development surface and possible future annotation tool, not the primary note-entry workflow.
 
 ## Priority key
 
@@ -29,7 +29,7 @@ Scriptum is now in the **buildable first runnable MVP** stage. CI restore and CI
 - [x] Remove duplicate explicit `PRIResource` include for `Strings/en-US/Resources.resw`.
 - [x] Confirm `dotnet build` passes in CI.
 
-### P0.3 Confirm local Windows launch — in progress
+### P0.3 Confirm local Windows launch — complete
 
 - [x] Clone or pull `main` locally.
 - [x] Restore packages locally.
@@ -37,7 +37,7 @@ Scriptum is now in the **buildable first runnable MVP** stage. CI restore and CI
 - [x] Launch the app.
 - [x] Confirm `MainWindow` opens without crashing.
 - [x] Confirm `MainView` displays the notebook canvas.
-- [ ] Manually verify drawing input from the Windows desktop session.
+- [x] Confirm current UI opens for further MVP replacement work.
 
 ### P0.4 Clean project structure
 
@@ -49,36 +49,34 @@ Scriptum is now in the **buildable first runnable MVP** stage. CI restore and CI
 
 ---
 
-## Phase 1: First working notebook loop
+## Phase 1: First physical-notebook capture loop
 
-Goal: create the smallest useful Scriptum experience: open app, draw, save, close, reopen, reload.
+Goal: create the smallest useful Scriptum experience: import or capture a page from a physical notebook, save it locally, close and reopen the app, load the latest page, and prepare the page image for transcription.
 
-### P1.1 Stabilize drawing canvas
+### P1.1 Add page capture/import
 
-- [ ] Verify manual mouse drawing in a Windows desktop session; WSL-driven synthetic mouse input did not create strokes during local setup validation.
-- [ ] Verify mouse drawing.
-- [ ] Verify pen/stylus drawing.
-- [ ] Verify touch behavior.
-- [ ] Smooth stroke rendering.
-- [ ] Prevent multi-pointer corruption.
-- [ ] Add bounds handling.
-- [ ] Add clear pen-mode visual state.
+- [ ] Add Import Image command.
+- [ ] Support common notebook photo/image formats.
+- [ ] Copy imported page images into local app storage.
+- [ ] Display the imported page image in the main view.
+- [ ] Show basic image metadata: filename, imported timestamp, dimensions.
+- [ ] Add clear failure messages for unsupported or unreadable files.
 
-### P1.2 Stabilize vector ink model
+### P1.2 Stabilize physical page model
 
-- [ ] Confirm `InkPoint` stores enough data for rendering/transcription.
-- [ ] Confirm `InkStroke` stores color, thickness, pressure, timestamps, and ordered points.
+- [ ] Add physical notebook page model fields: ID, title, source image path, created, updated, imported timestamp.
+- [ ] Add image checksum or content identity for duplicate detection.
 - [ ] Add model versioning.
-- [ ] Prepare metadata for future eraser, selection, and page transforms.
+- [ ] Prepare metadata for future notebook grouping, transcription, tags, and export.
 
-### P1.3 Prove SQLCipher save/load
+### P1.3 Prove SQLCipher page save/load
 
 - [ ] Confirm encrypted database opens.
-- [ ] Confirm `notebook_pages` table is created.
-- [ ] Save a page from the UI.
+- [ ] Confirm physical page table is created.
+- [ ] Save imported page metadata from the UI.
 - [ ] Close and reopen the app.
 - [ ] Load the latest page.
-- [ ] Confirm strokes redraw correctly.
+- [ ] Confirm the page image and metadata restore correctly.
 - [ ] Add clear database failure messages.
 - [ ] Add corrupt-payload handling.
 
@@ -105,10 +103,11 @@ Goal: create the smallest useful Scriptum experience: open app, draw, save, clos
 ## Phase 2: MVP navigation and daily usability
 
 - [ ] Add sidebar page navigation.
-- [ ] Add autosave with debounce.
-- [ ] Add undo/redo command stack.
-- [ ] Add eraser MVP.
-- [ ] Add keyboard shortcuts: Save, Undo, Redo, New Page, Delete.
+- [ ] Add import queue or recent imports list.
+- [ ] Add basic image rotate/crop workflow for photographed notebook pages.
+- [ ] Add page title editing.
+- [ ] Add delete behavior with confirmation.
+- [ ] Add keyboard shortcuts: Import, Save, New Page, Delete.
 
 ---
 
@@ -124,7 +123,7 @@ Goal: create the smallest useful Scriptum experience: open app, draw, save, clos
 
 ## Phase 4: Transcription MVP
 
-- [ ] Render page or selection to image.
+- [ ] Prepare imported page image for OCR/transcription.
 - [ ] Add preprocessing service boundary.
 - [ ] Add OpenCVSharp adapter or equivalent preprocessing adapter.
 - [ ] Add `ITranscriptionProvider` abstraction.
@@ -148,10 +147,9 @@ Goal: create the smallest useful Scriptum experience: open app, draw, save, clos
 ## Phase 6: Premium notebook feel
 
 - [ ] Add zoom and pan.
-- [ ] Add lined/grid/dot paper backgrounds.
-- [ ] Add dark mode canvas option.
-- [ ] Add pen thickness and color selectors.
-- [ ] Add selection/lasso tools.
+- [ ] Add page image viewer polish.
+- [ ] Add before/after preprocessing preview.
+- [ ] Add optional annotation mode for marking imported pages.
 - [ ] Add page thumbnails.
 - [ ] Add command palette.
 
@@ -161,7 +159,7 @@ Goal: create the smallest useful Scriptum experience: open app, draw, save, clos
 
 - [ ] Export page images.
 - [ ] Export PDF pages and notebooks.
-- [ ] Import image/PDF/Markdown notes.
+- [ ] Import PDF/Markdown notes.
 - [ ] Replace placeholder app assets.
 - [ ] Configure MSIX packaging and signing.
 - [ ] Add release workflow, artifacts, changelog, and version tags.
@@ -173,14 +171,14 @@ Goal: create the smallest useful Scriptum experience: open app, draw, save, clos
 
 1. [x] Fix CI restore failure.
 2. [x] Fix compile/build errors.
-3. [ ] Confirm local Windows launch.
-4. [ ] Verify canvas drawing with mouse/pen/touch.
-5. [ ] Verify SQLCipher save/load from the UI.
-6. [ ] Add multiple pages.
-7. [ ] Add sidebar page navigation.
-8. [ ] Add autosave.
+3. [x] Confirm local Windows launch.
+4. [ ] Replace the drawing-first surface with an import/capture-first page view.
+5. [ ] Save imported page metadata and image path through SQLCipher-backed storage.
+6. [ ] Load the latest imported page.
+7. [ ] Add multiple pages.
+8. [ ] Add sidebar page navigation.
 9. [ ] Add notebook model.
-10. [ ] Add transcription rendering pipeline.
+10. [ ] Add image preprocessing pipeline.
 11. [ ] Add transcription provider boundary.
 12. [ ] Add transcription UI.
 13. [ ] Add search.
