@@ -11,7 +11,7 @@ public partial class MainViewModel : ViewModelBase
     private string _applicationTitle = "Scriptum";
 
     [ObservableProperty]
-    private string _subtitle = "Premium Local-First Digital Notebook";
+    private string _subtitle = "Capture handwritten notebook pages and prepare them for transcription";
 
     public MainViewModel()
     {

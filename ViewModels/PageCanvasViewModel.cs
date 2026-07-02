@@ -1,14 +1,29 @@
+using Microsoft.UI.Xaml.Media.Imaging;
 using Scriptum.Models;
 using Scriptum.Services;
+using Windows.Graphics.Imaging;
+using Windows.Storage;
 
 namespace Scriptum.ViewModels;
 
 /// <summary>
-/// ViewModel backing the first Scriptum drawing surface MVP.
+/// ViewModel backing the first physical notebook page capture MVP.
 /// </summary>
 public sealed partial class PageCanvasViewModel : ViewModelBase
 {
+    private static readonly string[] SupportedImageExtensions =
+    [
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".bmp",
+        ".gif",
+        ".tif",
+        ".tiff"
+    ];
+
     private readonly IPageStorageService _storageService;
+    private readonly string _importDirectory;
 
     public PageCanvasViewModel()
         : this(new SqlitePageStorageService())
@@ -18,58 +33,94 @@ public sealed partial class PageCanvasViewModel : ViewModelBase
     public PageCanvasViewModel(IPageStorageService storageService)
     {
         _storageService = storageService;
+        _importDirectory = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "Scriptum",
+            "ImportedPages");
+
         CurrentPage = new NotebookPage
         {
-            Title = "First Scriptum Page"
+            Title = "Untitled notebook page"
         };
-        StatusMessage = "Draw on the page to create editable vector ink.";
+        StatusMessage = "Import a photo or scan from your physical notebook.";
     }
 
     public NotebookPage CurrentPage { get; private set; }
 
     public string StatusMessage { get; private set; }
 
-    public int StrokeCount => CurrentPage.Strokes.Count;
+    public BitmapImage? PageImage { get; private set; }
 
-    public bool CanUndo => CurrentPage.Strokes.Count > 0;
+    public bool HasImportedImage => !string.IsNullOrWhiteSpace(CurrentPage.SourceImagePath);
 
-    public void AddStroke(InkStroke stroke)
+    public string PageTitle => CurrentPage.Title;
+
+    public string SourceFileLabel => CurrentPage.OriginalFileName ?? "No page imported";
+
+    public string ImageDetails => GetImageDetails();
+
+    public string TranscriptionText => string.IsNullOrWhiteSpace(CurrentPage.TranscriptionText)
+        ? "No transcription yet."
+        : CurrentPage.TranscriptionText;
+
+    public async Task ImportImageAsync(string sourceImagePath, CancellationToken cancellationToken = default)
     {
-        if (stroke.Points.Count < 2)
+        IsLoading = true;
+        ErrorMessage = null;
+
+        try
         {
-            return;
+            if (string.IsNullOrWhiteSpace(sourceImagePath) || !File.Exists(sourceImagePath))
+            {
+                StatusMessage = "No readable notebook image was selected.";
+                OnPropertyChanged(nameof(StatusMessage));
+                return;
+            }
+
+            var extension = Path.GetExtension(sourceImagePath);
+            if (!SupportedImageExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
+            {
+                StatusMessage = "Choose a notebook page image such as JPG, PNG, BMP, GIF, or TIFF.";
+                OnPropertyChanged(nameof(StatusMessage));
+                return;
+            }
+
+            Directory.CreateDirectory(_importDirectory);
+
+            var importedAt = DateTimeOffset.UtcNow;
+            var pageId = Guid.NewGuid();
+            var destinationPath = Path.Combine(_importDirectory, $"{pageId:N}{extension.ToLowerInvariant()}");
+            File.Copy(sourceImagePath, destinationPath, overwrite: false);
+
+            var dimensions = await ReadImageDimensionsAsync(destinationPath);
+            var fileInfo = new FileInfo(destinationPath);
+
+            CurrentPage = new NotebookPage
+            {
+                Id = pageId,
+                Title = Path.GetFileNameWithoutExtension(sourceImagePath),
+                CreatedAt = importedAt,
+                UpdatedAt = importedAt,
+                ImportedAt = importedAt,
+                SourceImagePath = destinationPath,
+                OriginalFileName = Path.GetFileName(sourceImagePath),
+                SourceImageBytes = fileInfo.Length,
+                ImagePixelWidth = dimensions.Width,
+                ImagePixelHeight = dimensions.Height
+            };
+
+            RefreshPageImage();
+            StatusMessage = "Notebook page imported. Save it to keep it in the encrypted local index.";
+            NotifyPageStateChanged();
         }
-
-        CurrentPage.Strokes.Add(stroke);
-        CurrentPage.UpdatedAt = DateTimeOffset.UtcNow;
-        StatusMessage = $"Stroke captured. Total strokes: {StrokeCount}.";
-        NotifyPageStateChanged();
-    }
-
-    public InkStroke? RemoveLastStroke()
-    {
-        if (!CanUndo)
+        catch (Exception ex)
         {
-            StatusMessage = "There are no strokes to undo.";
-            OnPropertyChanged(nameof(StatusMessage));
-            return null;
+            ErrorMessage = $"Unable to import notebook page: {ex.Message}";
         }
-
-        var lastIndex = CurrentPage.Strokes.Count - 1;
-        var stroke = CurrentPage.Strokes[lastIndex];
-        CurrentPage.Strokes.RemoveAt(lastIndex);
-        CurrentPage.UpdatedAt = DateTimeOffset.UtcNow;
-        StatusMessage = $"Removed the latest stroke. Total strokes: {StrokeCount}.";
-        NotifyPageStateChanged();
-        return stroke;
-    }
-
-    public void ClearPage()
-    {
-        CurrentPage.Strokes.Clear();
-        CurrentPage.UpdatedAt = DateTimeOffset.UtcNow;
-        StatusMessage = "Page cleared.";
-        NotifyPageStateChanged();
+        finally
+        {
+            IsLoading = false;
+        }
     }
 
     public async Task SaveAsync()
@@ -79,8 +130,15 @@ public sealed partial class PageCanvasViewModel : ViewModelBase
 
         try
         {
+            if (!HasImportedImage)
+            {
+                StatusMessage = "Import a notebook page before saving.";
+                OnPropertyChanged(nameof(StatusMessage));
+                return;
+            }
+
             await _storageService.SavePageAsync(CurrentPage);
-            StatusMessage = $"Saved {StrokeCount} stroke(s) to the encrypted local notebook store.";
+            StatusMessage = "Saved notebook page metadata to the encrypted local index.";
             OnPropertyChanged(nameof(StatusMessage));
         }
         catch (Exception ex)
@@ -109,7 +167,8 @@ public sealed partial class PageCanvasViewModel : ViewModelBase
             }
 
             CurrentPage = page;
-            StatusMessage = $"Loaded page with {StrokeCount} stroke(s) from the encrypted local notebook store.";
+            RefreshPageImage();
+            StatusMessage = "Loaded the latest notebook page from the encrypted local index.";
             NotifyPageStateChanged();
             OnPropertyChanged(nameof(CurrentPage));
             return page;
@@ -125,10 +184,64 @@ public sealed partial class PageCanvasViewModel : ViewModelBase
         }
     }
 
+    public void PrepareTranscription()
+    {
+        if (!HasImportedImage)
+        {
+            StatusMessage = "Import a notebook page before transcription.";
+            OnPropertyChanged(nameof(StatusMessage));
+            return;
+        }
+
+        CurrentPage.TranscriptionText = "Transcription provider is not wired yet. This page is ready for OCR/transcription preprocessing.";
+        CurrentPage.UpdatedAt = DateTimeOffset.UtcNow;
+        StatusMessage = "Notebook page is ready for the transcription pipeline.";
+        NotifyPageStateChanged();
+    }
+
     private void NotifyPageStateChanged()
     {
         OnPropertyChanged(nameof(StatusMessage));
-        OnPropertyChanged(nameof(StrokeCount));
-        OnPropertyChanged(nameof(CanUndo));
+        OnPropertyChanged(nameof(PageImage));
+        OnPropertyChanged(nameof(HasImportedImage));
+        OnPropertyChanged(nameof(PageTitle));
+        OnPropertyChanged(nameof(SourceFileLabel));
+        OnPropertyChanged(nameof(ImageDetails));
+        OnPropertyChanged(nameof(TranscriptionText));
+    }
+
+    private void RefreshPageImage()
+    {
+        PageImage = !string.IsNullOrWhiteSpace(CurrentPage.SourceImagePath) && File.Exists(CurrentPage.SourceImagePath)
+            ? new BitmapImage(new Uri(CurrentPage.SourceImagePath))
+            : null;
+    }
+
+    private string GetImageDetails()
+    {
+        if (!HasImportedImage)
+        {
+            return "Import a JPG, PNG, BMP, GIF, or TIFF image from a photographed or scanned notebook page.";
+        }
+
+        var dimensions = CurrentPage.ImagePixelWidth is not null && CurrentPage.ImagePixelHeight is not null
+            ? $"{CurrentPage.ImagePixelWidth} x {CurrentPage.ImagePixelHeight}px"
+            : "dimensions unknown";
+
+        var size = CurrentPage.SourceImageBytes is not null
+            ? $"{CurrentPage.SourceImageBytes.Value / 1024.0:F1} KB"
+            : "size unknown";
+
+        var imported = CurrentPage.ImportedAt?.ToLocalTime().ToString("g") ?? "unknown import time";
+        return $"{dimensions} | {size} | imported {imported}";
+    }
+
+    private static async Task<(int Width, int Height)> ReadImageDimensionsAsync(string imagePath)
+    {
+        var file = await StorageFile.GetFileFromPathAsync(imagePath);
+        await using var stream = await file.OpenStreamForReadAsync();
+        var randomAccessStream = stream.AsRandomAccessStream();
+        var decoder = await BitmapDecoder.CreateAsync(randomAccessStream);
+        return ((int)decoder.PixelWidth, (int)decoder.PixelHeight);
     }
 }
