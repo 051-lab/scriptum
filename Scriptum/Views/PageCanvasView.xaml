@@ -1,0 +1,72 @@
+<UserControl
+    x:Class="Scriptum.Views.PageCanvasView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Border Padding="24">
+        <Grid RowSpacing="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Notebook Canvas"
+                               FontSize="28"
+                               FontWeight="SemiBold" />
+                    <TextBlock Text="Write naturally. Scriptum stores the ink as editable vector strokes."
+                               Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            Spacing="8"
+                            VerticalAlignment="Center">
+                    <Button Content="Undo" Click="UndoButton_Click" />
+                    <Button Content="Clear" Click="ClearButton_Click" />
+                    <Button Content="Load Latest" Click="LoadLatestButton_Click" />
+                    <Button Content="Save" Click="SaveButton_Click" />
+                </StackPanel>
+            </Grid>
+
+            <Border Grid.Row="1"
+                    Background="White"
+                    BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}"
+                    BorderThickness="1"
+                    CornerRadius="18">
+                <Canvas x:Name="DrawingSurface"
+                        Background="White"
+                        MinWidth="900"
+                        MinHeight="620"
+                        PointerPressed="DrawingSurface_PointerPressed"
+                        PointerMoved="DrawingSurface_PointerMoved"
+                        PointerReleased="DrawingSurface_PointerReleased"
+                        PointerCanceled="DrawingSurface_PointerCanceled"
+                        PointerCaptureLost="DrawingSurface_PointerCaptureLost" />
+            </Border>
+
+            <Grid Grid.Row="2" ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="{x:Bind ViewModel.StrokeCount, Mode=OneWay}"
+                           FontWeight="SemiBold" />
+                <TextBlock Grid.Column="1"
+                           Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
+                           Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}" />
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

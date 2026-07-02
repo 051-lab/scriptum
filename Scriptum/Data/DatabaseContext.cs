@@ -8,21 +8,34 @@ namespace Scriptum.Data;
 /// </summary>
 public sealed class DatabaseContext : IDisposable
 {
-    private SqliteConnection? _connection;
+    private const string DevelopmentDatabaseKey = "scriptum-dev-key";
+
     private readonly string _databasePath;
+    private readonly string _encryptionKey;
+    private SqliteConnection? _connection;
     private bool _disposed;
 
-    public DatabaseContext(string databasePath)
+    public DatabaseContext(string databasePath, string? encryptionKey = null)
     {
         _databasePath = databasePath;
-        Batteries_V2.Init(); // Initialize SQLCipher
+        _encryptionKey = ResolveEncryptionKey(encryptionKey);
+
+        var databaseDirectory = Path.GetDirectoryName(_databasePath);
+        if (!string.IsNullOrWhiteSpace(databaseDirectory))
+        {
+            Directory.CreateDirectory(databaseDirectory);
+        }
+
+        Batteries_V2.Init();
     }
 
     public SqliteConnection Connection
     {
         get
         {
-            if (_connection == null)
+            ThrowIfDisposed();
+
+            if (_connection is null)
             {
                 var connectionString = new SqliteConnectionStringBuilder
                 {
@@ -33,29 +46,53 @@ public sealed class DatabaseContext : IDisposable
                 _connection = new SqliteConnection(connectionString);
                 _connection.Open();
 
-                // Set encryption key (this will be replaced by TPM-backed key in Phase 7)
-                using var cmd = _connection.CreateCommand();
-                cmd.CommandText = "PRAGMA key = 'scriptum-dev-key';"; // Placeholder for Phase 7
-                cmd.ExecuteNonQuery();
+                using var command = _connection.CreateCommand();
 
-                // Enable WAL mode for better performance
-                cmd.CommandText = "PRAGMA journal_mode = WAL;";
-                cmd.ExecuteNonQuery();
+                command.CommandText = $"PRAGMA key = '{EscapeSqlLiteral(_encryptionKey)}';";
+                command.ExecuteNonQuery();
 
-                // Set page size for optimal encryption
-                cmd.CommandText = "PRAGMA page_size = 4096;";
-                cmd.ExecuteNonQuery();
+                command.CommandText = "PRAGMA page_size = 4096;";
+                command.ExecuteNonQuery();
+
+                command.CommandText = "PRAGMA journal_mode = WAL;";
+                command.ExecuteNonQuery();
             }
+
             return _connection;
         }
     }
 
     public void Dispose()
     {
-        if (!_disposed)
+        if (_disposed)
         {
-            _connection?.Dispose();
-            _disposed = true;
+            return;
+        }
+
+        _connection?.Dispose();
+        _disposed = true;
+    }
+
+    private static string ResolveEncryptionKey(string? encryptionKey)
+    {
+        if (!string.IsNullOrWhiteSpace(encryptionKey))
+        {
+            return encryptionKey;
+        }
+
+        var environmentKey = Environment.GetEnvironmentVariable("SCRIPTUM_DATABASE_KEY");
+        return !string.IsNullOrWhiteSpace(environmentKey)
+            ? environmentKey
+            : DevelopmentDatabaseKey;
+    }
+
+    private static string EscapeSqlLiteral(string value) => value.Replace("'", "''", StringComparison.Ordinal);
+
+    private void ThrowIfDisposed()
+    {
+        if (_disposed)
+        {
+            throw new ObjectDisposedException(nameof(DatabaseContext));
         }
     }
 }
