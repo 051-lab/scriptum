@@ -29,14 +29,15 @@ Scriptum is now in the **buildable first runnable MVP** stage. CI restore and CI
 - [x] Remove duplicate explicit `PRIResource` include for `Strings/en-US/Resources.resw`.
 - [x] Confirm `dotnet build` passes in CI.
 
-### P0.3 Confirm local Windows launch — next
+### P0.3 Confirm local Windows launch — in progress
 
-- [ ] Clone or pull `stabilize-build-foundation` locally.
-- [ ] Restore packages locally.
-- [ ] Build from Visual Studio or Windows terminal.
-- [ ] Launch the app.
-- [ ] Confirm `MainWindow` opens without crashing.
-- [ ] Confirm `MainView` displays the notebook canvas.
+- [x] Clone or pull `main` locally.
+- [x] Restore packages locally.
+- [x] Build from Visual Studio or Windows terminal.
+- [x] Launch the app.
+- [x] Confirm `MainWindow` opens without crashing.
+- [x] Confirm `MainView` displays the notebook canvas.
+- [ ] Manually verify drawing input from the Windows desktop session.
 
 ### P0.4 Clean project structure
 
@@ -54,6 +55,7 @@ Goal: create the smallest useful Scriptum experience: open app, draw, save, clos
 
 ### P1.1 Stabilize drawing canvas
 
+- [ ] Verify manual mouse drawing in a Windows desktop session; WSL-driven synthetic mouse input did not create strokes during local setup validation.
 - [ ] Verify mouse drawing.
 - [ ] Verify pen/stylus drawing.
 - [ ] Verify touch behavior.
