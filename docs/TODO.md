@@ -85,12 +85,12 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 ### P1.4 Add basic page lifecycle
 
 - [ ] Add New Page command.
-- [ ] Add page title field.
+- [x] Add page title field.
 - [ ] Add rename behavior.
 - [ ] Add delete behavior with confirmation.
 - [ ] Add updated timestamp display.
 - [ ] Add dirty-state tracking.
-- [ ] Add save status/confirmation.
+- [x] Add save status/confirmation.
 
 ### P1.5 Add notebook model
 
@@ -132,7 +132,8 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [ ] Add mock/local transcription provider for testing.
 - [ ] Add Qwen-VL provider boundary.
 - [ ] Add transcription UI and correction panel.
-- [ ] Persist raw and corrected transcription text.
+- [x] Persist corrected transcription text.
+- [ ] Persist raw transcription text separately from corrected text.
 
 ---
 

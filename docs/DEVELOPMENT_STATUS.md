@@ -4,7 +4,7 @@ _Last updated: 2026-07-02_
 
 ## Current stage
 
-Scriptum is in the **capture-first notebook archive MVP** stage. The app builds locally, launches on Windows, imports notebook page images, displays the original handwritten page as the primary artifact, lists imported pages in the sidebar, and keeps a placeholder transcription workspace beside it.
+Scriptum is in the **capture-first notebook archive MVP** stage. The app builds locally, launches on Windows, imports notebook page images, displays the original handwritten page as the primary artifact, lists imported pages in the sidebar, and lets users save page titles plus corrected digital text.
 
 The product direction is no longer an in-app handwriting canvas. Scriptum is for importing or capturing pages from physical notebooks, preserving the original image, and turning the handwriting into usable digital text.
 
@@ -17,7 +17,7 @@ The product direction is no longer an in-app handwriting canvas. Scriptum is for
 | Page import | Early MVP | Image import copies supported files into local app storage and displays the imported page. |
 | Local persistence | Early MVP | SQLCipher-backed page payload storage saves imported page metadata, lists imported pages, and loads selected pages. |
 | Build/local launch | Working locally | Restore and Release x64 build pass locally; the app launches from Windows. |
-| Transcription workspace | Placeholder | UI communicates raw/corrected text flow, but no AI/OCR provider is wired yet. |
+| Transcription workspace | Early MVP | Corrected text can be edited and saved; raw transcription and AI/OCR provider are not wired yet. |
 | Notebook management | Early MVP | Sidebar page list works for imported pages; notebook/project groups are placeholders and rename/delete/tags are still missing. |
 | Export/import | Not started | Markdown/PDF/image export and backup/restore flows are still missing. |
 | Packaging/release | Not started | App icons, MSIX signing, installer/release pipeline, and versioning still need work. |
@@ -53,7 +53,9 @@ A usable MVP should allow someone to:
 
 - List all imported pages from SQLCipher-backed storage. — complete
 - Select prior pages from the sidebar. — complete
-- Add page title editing, delete behavior, and richer metadata display.
+- Add page title editing. — complete
+- Add corrected text editing. — complete
+- Add delete behavior and richer metadata display.
 
 ### Milestone 2: Imported page persistence
 

@@ -27,5 +27,9 @@ public sealed class NotebookPage
 
     public string? TranscriptionText { get; set; }
 
+    public string? RawTranscriptionText { get; set; }
+
+    public string? CorrectedTranscriptionText { get; set; }
+
     public List<InkStroke> Strokes { get; set; } = new();
 }

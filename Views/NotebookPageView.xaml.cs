@@ -74,8 +74,17 @@ public sealed partial class NotebookPageView : UserControl
 
     private async void SaveButton_Click(object sender, RoutedEventArgs e)
     {
-        await ViewModel.SaveAsync();
+        await ViewModel.SaveTextEditsAsync();
         PageLibraryChanged?.Invoke(this, EventArgs.Empty);
+        Bindings.Update();
+        UpdateEmptyState();
+    }
+
+    private async void SaveCorrectionButton_Click(object sender, RoutedEventArgs e)
+    {
+        await ViewModel.SaveTextEditsAsync();
+        PageLibraryChanged?.Invoke(this, EventArgs.Empty);
+        Bindings.Update();
         UpdateEmptyState();
     }
 

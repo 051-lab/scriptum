@@ -10,7 +10,7 @@ public sealed class ImportedPageListItemViewModel
         Title = page.Title;
         SourceFileName = page.OriginalFileName ?? "Imported page";
         ImportedAt = page.ImportedAt;
-        TranscriptionStatus = string.IsNullOrWhiteSpace(page.TranscriptionText)
+        TranscriptionStatus = string.IsNullOrWhiteSpace(page.CorrectedTranscriptionText ?? page.RawTranscriptionText ?? page.TranscriptionText)
             ? "Waiting for transcription"
             : "Draft ready";
     }

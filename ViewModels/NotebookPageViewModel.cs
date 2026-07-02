@@ -24,6 +24,8 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
 
     private readonly IPageStorageService _storageService;
     private readonly string _importDirectory;
+    private string _editablePageTitle = "Untitled notebook page";
+    private string _correctedTranscriptionDraft = string.Empty;
 
     public NotebookPageViewModel()
         : this(new SqlitePageStorageService())
@@ -42,6 +44,7 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         {
             Title = "Untitled notebook page"
         };
+        SyncEditableFieldsFromCurrentPage();
         StatusMessage = "Import a photo or scan from your physical notebook.";
     }
 
@@ -55,6 +58,21 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
 
     public string PageTitle => CurrentPage.Title;
 
+    public string EditablePageTitle
+    {
+        get => _editablePageTitle;
+        set
+        {
+            if (_editablePageTitle == value)
+            {
+                return;
+            }
+
+            _editablePageTitle = value;
+            OnPropertyChanged();
+        }
+    }
+
     public string SourceFileLabel => CurrentPage.OriginalFileName ?? "No page imported";
 
     public string ImageDetails => GetImageDetails();
@@ -63,23 +81,38 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
 
     public string PageStatusLabel => HasImportedImage ? "Preserved original" : "Ready to import";
 
-    public string TranscriptionText => string.IsNullOrWhiteSpace(CurrentPage.TranscriptionText)
+    public string TranscriptionText => string.IsNullOrWhiteSpace(CurrentPage.CorrectedTranscriptionText ?? CurrentPage.TranscriptionText)
         ? "No transcription yet."
-        : CurrentPage.TranscriptionText;
+        : CurrentPage.CorrectedTranscriptionText ?? CurrentPage.TranscriptionText ?? string.Empty;
 
     public string ImportedDateLabel => CurrentPage.ImportedAt?.ToLocalTime().ToString("f") ?? "Not imported yet";
 
-    public string TranscriptionStatus => string.IsNullOrWhiteSpace(CurrentPage.TranscriptionText)
+    public string TranscriptionStatus => string.IsNullOrWhiteSpace(CurrentPage.CorrectedTranscriptionText ?? CurrentPage.RawTranscriptionText ?? CurrentPage.TranscriptionText)
         ? "Waiting for transcription"
         : "Draft ready";
 
-    public string RawTranscriptionText => string.IsNullOrWhiteSpace(CurrentPage.TranscriptionText)
+    public string RawTranscriptionText => string.IsNullOrWhiteSpace(CurrentPage.RawTranscriptionText)
         ? "Raw handwriting transcription will appear here after a provider is connected."
-        : CurrentPage.TranscriptionText;
+        : CurrentPage.RawTranscriptionText;
 
-    public string CorrectedTranscriptionText => string.IsNullOrWhiteSpace(CurrentPage.TranscriptionText)
+    public string CorrectedTranscriptionText => string.IsNullOrWhiteSpace(CurrentPage.CorrectedTranscriptionText ?? CurrentPage.TranscriptionText)
         ? "Corrected, copy-ready notes will appear here after review."
-        : CurrentPage.TranscriptionText;
+        : CurrentPage.CorrectedTranscriptionText ?? CurrentPage.TranscriptionText ?? string.Empty;
+
+    public string CorrectedTranscriptionDraft
+    {
+        get => _correctedTranscriptionDraft;
+        set
+        {
+            if (_correctedTranscriptionDraft == value)
+            {
+                return;
+            }
+
+            _correctedTranscriptionDraft = value;
+            OnPropertyChanged();
+        }
+    }
 
     public async Task ImportImageAsync(string sourceImagePath, CancellationToken cancellationToken = default)
     {
@@ -128,6 +161,7 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
             };
 
             RefreshPageImage();
+            SyncEditableFieldsFromCurrentPage();
             StatusMessage = "Notebook page imported. Save it to keep it in the encrypted local index.";
             NotifyPageStateChanged();
         }
@@ -186,6 +220,7 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
 
             CurrentPage = page;
             RefreshPageImage();
+            SyncEditableFieldsFromCurrentPage();
             StatusMessage = "Loaded the latest notebook page from the encrypted local index.";
             NotifyPageStateChanged();
             OnPropertyChanged(nameof(CurrentPage));
@@ -219,6 +254,7 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
 
             CurrentPage = page;
             RefreshPageImage();
+            SyncEditableFieldsFromCurrentPage();
             StatusMessage = "Loaded notebook page from the encrypted local index.";
             NotifyPageStateChanged();
             OnPropertyChanged(nameof(CurrentPage));
@@ -244,10 +280,47 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
             return;
         }
 
-        CurrentPage.TranscriptionText = "Transcription provider is not wired yet. This page is ready for OCR/transcription preprocessing.";
+        CurrentPage.RawTranscriptionText = "Transcription provider is not wired yet. This page is ready for OCR/transcription preprocessing.";
         CurrentPage.UpdatedAt = DateTimeOffset.UtcNow;
         StatusMessage = "Notebook page is ready for the transcription pipeline.";
         NotifyPageStateChanged();
+    }
+
+    public async Task SaveTextEditsAsync(CancellationToken cancellationToken = default)
+    {
+        IsLoading = true;
+        ErrorMessage = null;
+
+        try
+        {
+            if (!HasImportedImage)
+            {
+                StatusMessage = "Import a notebook page before saving text edits.";
+                OnPropertyChanged(nameof(StatusMessage));
+                return;
+            }
+
+            CurrentPage.Title = string.IsNullOrWhiteSpace(EditablePageTitle)
+                ? "Untitled notebook page"
+                : EditablePageTitle.Trim();
+            CurrentPage.CorrectedTranscriptionText = string.IsNullOrWhiteSpace(CorrectedTranscriptionDraft)
+                ? null
+                : CorrectedTranscriptionDraft;
+            CurrentPage.UpdatedAt = DateTimeOffset.UtcNow;
+
+            await _storageService.SavePageAsync(CurrentPage, cancellationToken);
+            SyncEditableFieldsFromCurrentPage();
+            StatusMessage = "Saved page title and corrected text.";
+            NotifyPageStateChanged();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Unable to save corrected text: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
 
     private void NotifyPageStateChanged()
@@ -265,6 +338,16 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         OnPropertyChanged(nameof(TranscriptionStatus));
         OnPropertyChanged(nameof(RawTranscriptionText));
         OnPropertyChanged(nameof(CorrectedTranscriptionText));
+        OnPropertyChanged(nameof(EditablePageTitle));
+        OnPropertyChanged(nameof(CorrectedTranscriptionDraft));
+    }
+
+    private void SyncEditableFieldsFromCurrentPage()
+    {
+        EditablePageTitle = CurrentPage.Title;
+        CorrectedTranscriptionDraft = CurrentPage.CorrectedTranscriptionText
+            ?? CurrentPage.TranscriptionText
+            ?? string.Empty;
     }
 
     private void RefreshPageImage()

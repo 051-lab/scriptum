@@ -241,10 +241,9 @@
                             Padding="12">
                         <StackPanel Spacing="7">
                             <TextBlock Text="PAGE DETAILS" Style="{StaticResource PanelLabelStyle}" />
-                            <TextBlock Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}"
-                                       Foreground="#211F1A"
-                                       FontWeight="SemiBold"
-                                       TextWrapping="Wrap" />
+                            <TextBox Header="Title"
+                                     Text="{x:Bind ViewModel.EditablePageTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     PlaceholderText="Page title" />
                             <TextBlock Text="{x:Bind ViewModel.ImageDetails, Mode=OneWay}"
                                        Foreground="#6F675C"
                                        TextWrapping="Wrap" />
@@ -290,10 +289,10 @@
                             <TextBlock Text="Corrected Text"
                                        Foreground="#211F1A"
                                        FontWeight="SemiBold" />
-                            <TextBox Text="{x:Bind ViewModel.CorrectedTranscriptionText, Mode=OneWay}"
+                            <TextBox Text="{x:Bind ViewModel.CorrectedTranscriptionDraft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      AcceptsReturn="True"
                                      TextWrapping="Wrap"
-                                     IsReadOnly="True"
+                                     PlaceholderText="Type or paste corrected digital notes here."
                                      MinHeight="185" />
                         </StackPanel>
                     </Grid>
@@ -309,7 +308,7 @@
                                 HorizontalAlignment="Stretch" />
                         <Button Grid.Column="1"
                                 Content="Save Correction"
-                                IsEnabled="False"
+                                Click="SaveCorrectionButton_Click"
                                 HorizontalAlignment="Stretch" />
                     </Grid>
                 </Grid>
