@@ -84,6 +84,7 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
 
             _editablePageTitle = value;
             OnPropertyChanged();
+            NotifyTextEditStateChanged();
         }
     }
 
@@ -95,6 +96,8 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
 
     public string PageStatusLabel => IsImportedImageMissing
         ? "Image file missing"
+        : HasUnsavedTextEdits
+            ? "Unsaved edits"
         : HasImportedImage
             ? "Preserved original"
             : "Ready to import";
@@ -119,6 +122,20 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         ? "Waiting for transcription"
         : "Draft ready";
 
+    public bool HasUnsavedTextEdits => HasImportedImage
+        && (GetNormalizedTitle(EditablePageTitle) != GetNormalizedTitle(CurrentPage.Title)
+            || GetNormalizedCorrectedText(CorrectedTranscriptionDraft) != GetNormalizedCorrectedText(CurrentPage.CorrectedTranscriptionText ?? CurrentPage.TranscriptionText));
+
+    public string TextEditStateLabel => HasUnsavedTextEdits
+        ? "Unsaved text edits"
+        : HasImportedImage
+            ? "Text saved"
+            : "No page loaded";
+
+    public string SaveButtonLabel => HasUnsavedTextEdits
+        ? "Save Edits"
+        : "Save";
+
     public string RawTranscriptionText => string.IsNullOrWhiteSpace(CurrentPage.RawTranscriptionText)
         ? "Raw handwriting transcription will appear here after a provider is connected."
         : CurrentPage.RawTranscriptionText;
@@ -139,6 +156,7 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
 
             _correctedTranscriptionDraft = value;
             OnPropertyChanged();
+            NotifyTextEditStateChanged();
         }
     }
 
@@ -219,7 +237,7 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
 
             await _storageService.SavePageAsync(CurrentPage);
             StatusMessage = "Saved notebook page metadata to the encrypted local index.";
-            OnPropertyChanged(nameof(StatusMessage));
+            NotifyPageStateChanged();
         }
         catch (Exception ex)
         {
@@ -503,10 +521,21 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         OnPropertyChanged(nameof(ImportedDateLabel));
         OnPropertyChanged(nameof(UpdatedDateLabel));
         OnPropertyChanged(nameof(TranscriptionStatus));
+        OnPropertyChanged(nameof(HasUnsavedTextEdits));
+        OnPropertyChanged(nameof(TextEditStateLabel));
+        OnPropertyChanged(nameof(SaveButtonLabel));
         OnPropertyChanged(nameof(RawTranscriptionText));
         OnPropertyChanged(nameof(CorrectedTranscriptionText));
         OnPropertyChanged(nameof(EditablePageTitle));
         OnPropertyChanged(nameof(CorrectedTranscriptionDraft));
+    }
+
+    private void NotifyTextEditStateChanged()
+    {
+        OnPropertyChanged(nameof(HasUnsavedTextEdits));
+        OnPropertyChanged(nameof(TextEditStateLabel));
+        OnPropertyChanged(nameof(SaveButtonLabel));
+        OnPropertyChanged(nameof(PageStatusLabel));
     }
 
     private void ApplyPreprocessingResult(PageImagePreprocessingResult result)
@@ -589,6 +618,14 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         var normalized = degrees % 360;
         return normalized < 0 ? normalized + 360 : normalized;
     }
+
+    private static string GetNormalizedTitle(string? title) => string.IsNullOrWhiteSpace(title)
+        ? "Untitled notebook page"
+        : title.Trim();
+
+    private static string GetNormalizedCorrectedText(string? text) => string.IsNullOrWhiteSpace(text)
+        ? string.Empty
+        : text;
 
     private static async Task<(int Width, int Height)> ReadImageDimensionsAsync(string imagePath)
     {

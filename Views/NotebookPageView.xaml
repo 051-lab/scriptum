@@ -54,7 +54,8 @@
                 <Button Content="New Page" Click="NewPageButton_Click" />
                 <Button Content="Import Page" Click="ImportImageButton_Click" />
                 <Button Content="Load Latest" Click="LoadLatestButton_Click" />
-                <Button Content="Save" Click="SaveButton_Click" />
+                <Button Content="{x:Bind ViewModel.SaveButtonLabel, Mode=OneWay}"
+                        Click="SaveButton_Click" />
                 <Button Content="Transcribe" Click="PrepareTranscriptionButton_Click" />
             </StackPanel>
         </Grid>
@@ -302,6 +303,10 @@
                             <TextBlock Text="{x:Bind ViewModel.UpdatedDateLabel, Mode=OneWay}"
                                        Foreground="#6F675C"
                                        TextWrapping="Wrap" />
+                            <TextBlock Text="{x:Bind ViewModel.TextEditStateLabel, Mode=OneWay}"
+                                       Foreground="#7D5D1B"
+                                       FontWeight="SemiBold"
+                                       TextWrapping="Wrap" />
                             <TextBlock Text="{x:Bind ViewModel.RotationLabel, Mode=OneWay}"
                                        Foreground="#6F675C"
                                        TextWrapping="Wrap" />
@@ -377,7 +382,7 @@
                                     Click="CopyTextButton_Click"
                                     HorizontalAlignment="Stretch" />
                             <Button Grid.Column="1"
-                                    Content="Save Correction"
+                                    Content="{x:Bind ViewModel.SaveButtonLabel, Mode=OneWay}"
                                     Click="SaveCorrectionButton_Click"
                                     HorizontalAlignment="Stretch" />
                         </Grid>

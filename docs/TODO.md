@@ -90,7 +90,7 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [x] Add rename behavior.
 - [x] Add delete behavior with confirmation.
 - [x] Add updated timestamp display.
-- [ ] Add dirty-state tracking.
+- [x] Add dirty-state tracking.
 - [x] Add save status/confirmation.
 
 ### P1.5 Add notebook model
