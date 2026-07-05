@@ -102,6 +102,7 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [x] Add unsaved-edit guard before page switching/reset actions.
 - [x] Add save status/confirmation.
 - [x] Add full notebook grouping and selection.
+- [x] Add notebook rename and move-page behavior.
 
 ---
 
@@ -210,8 +211,9 @@ The drawing canvas is not the MVP driver. It can become useful later as an annot
 15. [x] Add basic sidebar search.
 16. [x] Add Markdown/export handoff.
 17. [x] Add full notebook grouping and selection.
-18. [ ] Add full-text indexed search.
-19. [ ] Add MSIX packaging.
+18. [x] Add notebook rename and move-page behavior.
+19. [ ] Add full-text indexed search.
+20. [ ] Add MSIX packaging.
 
 ## Working Rule
 

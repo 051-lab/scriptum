@@ -604,6 +604,13 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         }
     }
 
+    public void AssignToNotebook(Notebook notebook)
+    {
+        CurrentPage.NotebookId = notebook.Id;
+        CurrentPage.NotebookTitle = notebook.Title;
+        OnPropertyChanged(nameof(NotebookLabel));
+    }
+
     private void NotifyPageStateChanged()
     {
         OnPropertyChanged(nameof(StatusMessage));

@@ -178,6 +178,67 @@ public partial class MainViewModel : ViewModelBase
         await SelectNotebookAsync(SelectedNotebook, cancellationToken);
     }
 
+    public async Task RenameSelectedNotebookAsync(string title, CancellationToken cancellationToken = default)
+    {
+        if (SelectedNotebook is null || string.IsNullOrWhiteSpace(title))
+        {
+            return;
+        }
+
+        var notebook = SelectedNotebook.Notebook;
+        var trimmedTitle = title.Trim();
+        if (string.Equals(notebook.Title, trimmedTitle, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        notebook.Title = trimmedTitle;
+        notebook.UpdatedAt = DateTimeOffset.UtcNow;
+        await _notebookStorageService.SaveNotebookAsync(notebook, cancellationToken);
+
+        var pages = await _storageService.LoadPagesAsync(cancellationToken);
+        foreach (var page in pages.Where(page => (page.NotebookId ?? DefaultNotebook.Id) == notebook.Id))
+        {
+            page.NotebookTitle = notebook.Title;
+            page.UpdatedAt = DateTimeOffset.UtcNow;
+            await _storageService.SavePageAsync(page, cancellationToken);
+        }
+
+        if ((NotebookPage.CurrentPage.NotebookId ?? DefaultNotebook.Id) == notebook.Id)
+        {
+            NotebookPage.AssignToNotebook(notebook);
+        }
+
+        await LoadNotebooksAsync(notebook.Id, cancellationToken);
+        await RefreshImportedPagesAsync(SelectedPage?.Id ?? NotebookPage.CurrentPage.Id, cancellationToken);
+    }
+
+    public async Task<bool> MoveCurrentPageToNotebookAsync(
+        NotebookListItemViewModel? notebook,
+        CancellationToken cancellationToken = default)
+    {
+        if (notebook is null || !NotebookPage.HasImportedImage)
+        {
+            return false;
+        }
+
+        var page = NotebookPage.CurrentPage;
+        if ((page.NotebookId ?? DefaultNotebook.Id) == notebook.Id)
+        {
+            return false;
+        }
+
+        NotebookPage.AssignToNotebook(notebook.Notebook);
+        page.UpdatedAt = DateTimeOffset.UtcNow;
+        await _storageService.SavePageAsync(page, cancellationToken);
+
+        await LoadNotebooksAsync(notebook.Id, cancellationToken);
+        await RefreshImportedPagesAsync(page.Id, cancellationToken);
+        SelectedPage = ImportedPages.FirstOrDefault(item => item.Id == page.Id) ?? SelectedPage;
+        await SelectPageAsync(SelectedPage, cancellationToken);
+        return true;
+    }
+
     public Task NewPageAsync()
     {
         SelectedPage = null;

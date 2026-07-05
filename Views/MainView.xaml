@@ -115,6 +115,9 @@
                         <Button Content="Delete Selected"
                                 Click="DeleteSelectedPage_Click"
                                 HorizontalAlignment="Stretch" />
+                        <Button Content="Move Page"
+                                Click="MovePageToNotebook_Click"
+                                HorizontalAlignment="Stretch" />
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Spacing="10">
@@ -147,6 +150,9 @@
                         </ListView>
                         <Button Content="New Notebook"
                                 Click="NewNotebook_Click"
+                                HorizontalAlignment="Stretch" />
+                        <Button Content="Rename Notebook"
+                                Click="RenameNotebook_Click"
                                 HorizontalAlignment="Stretch" />
                     </StackPanel>
                 </Grid>

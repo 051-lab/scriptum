@@ -188,6 +188,88 @@ public sealed partial class MainView : Page
         Bindings.Update();
     }
 
+    private async void RenameNotebook_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (ViewModel.SelectedNotebook is null)
+        {
+            return;
+        }
+
+        var titleBox = new TextBox
+        {
+            Header = "Notebook name",
+            Text = ViewModel.SelectedNotebook.Title
+        };
+
+        var dialog = new ContentDialog
+        {
+            Title = "Rename notebook",
+            Content = titleBox,
+            PrimaryButtonText = "Rename",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Primary,
+            XamlRoot = XamlRoot
+        };
+
+        var result = await dialog.ShowAsync();
+        if (result != ContentDialogResult.Primary || string.IsNullOrWhiteSpace(titleBox.Text))
+        {
+            return;
+        }
+
+        await ViewModel.RenameSelectedNotebookAsync(titleBox.Text);
+        _lastConfirmedSelectedNotebook = ViewModel.SelectedNotebook;
+        _lastConfirmedSelectedPage = ViewModel.SelectedPage;
+        NotebookPageSurface.RefreshView();
+        Bindings.Update();
+    }
+
+    private async void MovePageToNotebook_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (!ViewModel.NotebookPage.HasImportedImage || ViewModel.Notebooks.Count < 2)
+        {
+            return;
+        }
+
+        if (!await ConfirmDiscardUnsavedTextEditsAsync())
+        {
+            return;
+        }
+
+        var notebookPicker = new ComboBox
+        {
+            Header = "Destination notebook",
+            ItemsSource = ViewModel.Notebooks,
+            DisplayMemberPath = nameof(NotebookListItemViewModel.Title),
+            SelectedItem = ViewModel.Notebooks.FirstOrDefault(notebook => notebook.Id != ViewModel.SelectedNotebook?.Id)
+        };
+
+        var dialog = new ContentDialog
+        {
+            Title = "Move page",
+            Content = notebookPicker,
+            PrimaryButtonText = "Move",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Primary,
+            XamlRoot = XamlRoot
+        };
+
+        var result = await dialog.ShowAsync();
+        if (result != ContentDialogResult.Primary
+            || notebookPicker.SelectedItem is not NotebookListItemViewModel destination)
+        {
+            return;
+        }
+
+        if (await ViewModel.MoveCurrentPageToNotebookAsync(destination))
+        {
+            _lastConfirmedSelectedNotebook = ViewModel.SelectedNotebook;
+            _lastConfirmedSelectedPage = ViewModel.SelectedPage;
+            NotebookPageSurface.RefreshView();
+            Bindings.Update();
+        }
+    }
+
     private async void NewPageKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
         args.Handled = true;
