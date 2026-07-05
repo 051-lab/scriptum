@@ -153,7 +153,8 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [ ] Add full-text search index over corrected transcriptions.
 - [ ] Add tags and project/repo association.
 - [ ] Add developer note templates.
-- [ ] Add Markdown export.
+- [x] Add Markdown export for the current page corrected text.
+- [ ] Add batch Markdown export.
 - [ ] Add structured handoff exports for GitHub issues, PR checklists, docs, Codex, ChatGPT, and Qwen Coder.
 
 ---

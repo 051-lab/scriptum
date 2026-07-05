@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Scriptum.ViewModels;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Storage;
 using Windows.System;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
@@ -172,6 +173,38 @@ public sealed partial class NotebookPageView : UserControl
     {
         await ViewModel.ClearCorrectedTranscriptionAsync();
         PageLibraryChanged?.Invoke(this, EventArgs.Empty);
+        Bindings.Update();
+    }
+
+    private async void ExportMarkdownButton_Click(object sender, RoutedEventArgs e)
+    {
+        var markdown = ViewModel.BuildMarkdownExport();
+        if (markdown is null)
+        {
+            Bindings.Update();
+            return;
+        }
+
+        var picker = new FileSavePicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+            SuggestedFileName = ViewModel.MarkdownExportFileName
+        };
+        picker.FileTypeChoices.Add("Markdown", [".md"]);
+
+        if (MainWindow.Active is not null)
+        {
+            InitializeWithWindow.Initialize(picker, WindowNative.GetWindowHandle(MainWindow.Active));
+        }
+
+        var file = await picker.PickSaveFileAsync();
+        if (file is null)
+        {
+            return;
+        }
+
+        await FileIO.WriteTextAsync(file, markdown);
+        ViewModel.MarkMarkdownExported(file.Path);
         Bindings.Update();
     }
 

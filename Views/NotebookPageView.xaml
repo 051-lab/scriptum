@@ -393,6 +393,10 @@
                         <Button Content="Clear Corrected"
                                 Click="ClearCorrectedButton_Click"
                                 HorizontalAlignment="Stretch" />
+                        <Button Content="Export Markdown"
+                                Click="ExportMarkdownButton_Click"
+                                IsEnabled="{x:Bind ViewModel.CanExportMarkdown, Mode=OneWay}"
+                                HorizontalAlignment="Stretch" />
                     </StackPanel>
                 </Grid>
             </Border>

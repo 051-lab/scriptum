@@ -149,6 +149,10 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         ? "Corrected, copy-ready notes will appear here after review."
         : CurrentPage.CorrectedTranscriptionText ?? CurrentPage.TranscriptionText ?? string.Empty;
 
+    public bool CanExportMarkdown => HasImportedImage && !string.IsNullOrWhiteSpace(GetCorrectedTextForExport());
+
+    public string MarkdownExportFileName => $"{GetSafeFileName(PageTitle)}.md";
+
     public string CorrectedTranscriptionDraft
     {
         get => _correctedTranscriptionDraft;
@@ -514,6 +518,41 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         OnPropertyChanged(nameof(StatusMessage));
     }
 
+    public string? BuildMarkdownExport()
+    {
+        var correctedText = GetCorrectedTextForExport();
+        if (!HasImportedImage || string.IsNullOrWhiteSpace(correctedText))
+        {
+            StatusMessage = "There is no corrected text to export.";
+            OnPropertyChanged(nameof(StatusMessage));
+            return null;
+        }
+
+        var sourceImage = string.IsNullOrWhiteSpace(CurrentPage.OriginalFileName)
+            ? "Unknown"
+            : CurrentPage.OriginalFileName;
+        var imported = CurrentPage.ImportedAt?.ToLocalTime().ToString("f") ?? "Not imported";
+
+        return $"""
+            # {PageTitle}
+
+            - Notebook: {NotebookLabel}
+            - Source image: {sourceImage}
+            - Imported: {imported}
+            - Updated: {UpdatedDateLabel}
+
+            ## Corrected Text
+
+            {correctedText}
+            """;
+    }
+
+    public void MarkMarkdownExported(string path)
+    {
+        StatusMessage = $"Exported Markdown to {path}.";
+        OnPropertyChanged(nameof(StatusMessage));
+    }
+
     private void NotifyPageStateChanged()
     {
         OnPropertyChanged(nameof(StatusMessage));
@@ -536,6 +575,8 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasUnsavedTextEdits));
         OnPropertyChanged(nameof(TextEditStateLabel));
         OnPropertyChanged(nameof(SaveButtonLabel));
+        OnPropertyChanged(nameof(CanExportMarkdown));
+        OnPropertyChanged(nameof(MarkdownExportFileName));
         OnPropertyChanged(nameof(RawTranscriptionText));
         OnPropertyChanged(nameof(CorrectedTranscriptionText));
         OnPropertyChanged(nameof(EditablePageTitle));
@@ -547,6 +588,8 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasUnsavedTextEdits));
         OnPropertyChanged(nameof(TextEditStateLabel));
         OnPropertyChanged(nameof(SaveButtonLabel));
+        OnPropertyChanged(nameof(CanExportMarkdown));
+        OnPropertyChanged(nameof(MarkdownExportFileName));
         OnPropertyChanged(nameof(PageStatusLabel));
     }
 
@@ -651,6 +694,23 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
     private static string GetNormalizedCorrectedText(string? text) => string.IsNullOrWhiteSpace(text)
         ? string.Empty
         : text;
+
+    private string? GetCorrectedTextForExport() => string.IsNullOrWhiteSpace(CorrectedTranscriptionDraft)
+        ? CurrentPage.CorrectedTranscriptionText ?? CurrentPage.TranscriptionText
+        : CorrectedTranscriptionDraft;
+
+    private static string GetSafeFileName(string value)
+    {
+        var invalidCharacters = Path.GetInvalidFileNameChars();
+        var safeFileName = new string(value
+            .Select(character => invalidCharacters.Contains(character) ? '-' : character)
+            .ToArray())
+            .Trim();
+
+        return string.IsNullOrWhiteSpace(safeFileName)
+            ? "notebook-page"
+            : safeFileName;
+    }
 
     private static async Task<(int Width, int Height)> ReadImageDimensionsAsync(string imagePath)
     {
