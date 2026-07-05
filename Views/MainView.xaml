@@ -123,10 +123,11 @@
                                    FontSize="12"
                                    FontWeight="SemiBold" />
                         <ListView ItemsSource="{x:Bind ViewModel.Notebooks, Mode=OneWay}"
+                                  SelectedItem="{x:Bind ViewModel.SelectedNotebook, Mode=TwoWay}"
+                                  SelectionChanged="Notebooks_SelectionChanged"
                                   Background="Transparent"
                                   BorderThickness="0"
-                                  IsItemClickEnabled="False"
-                                  SelectionMode="None">
+                                  SelectionMode="Single">
                             <ListView.ItemTemplate>
                                 <DataTemplate x:DataType="viewModels:NotebookListItemViewModel">
                                     <Grid Padding="4">
@@ -144,6 +145,9 @@
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>
+                        <Button Content="New Notebook"
+                                Click="NewNotebook_Click"
+                                HorizontalAlignment="Stretch" />
                     </StackPanel>
                 </Grid>
 

@@ -16,6 +16,8 @@ public sealed partial class ImportedPageListItemViewModel : ViewModelBase
 
     public string SourceFileName { get; private set; } = "Imported page";
 
+    public Guid? NotebookId { get; private set; }
+
     public string SearchText { get; private set; } = string.Empty;
 
     public DateTimeOffset? ImportedAt { get; private set; }
@@ -32,6 +34,7 @@ public sealed partial class ImportedPageListItemViewModel : ViewModelBase
     {
         Title = page.Title;
         SourceFileName = page.OriginalFileName ?? "Imported page";
+        NotebookId = page.NotebookId;
         SearchText = string.Join(
             ' ',
             page.Title,
@@ -49,6 +52,7 @@ public sealed partial class ImportedPageListItemViewModel : ViewModelBase
 
         OnPropertyChanged(nameof(Title));
         OnPropertyChanged(nameof(SourceFileName));
+        OnPropertyChanged(nameof(NotebookId));
         OnPropertyChanged(nameof(SearchText));
         OnPropertyChanged(nameof(ImportedAt));
         OnPropertyChanged(nameof(UpdatedAt));

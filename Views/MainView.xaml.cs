@@ -13,7 +13,9 @@ public sealed partial class MainView : Page
     public MainViewModel ViewModel { get; } = new();
     private bool _initialized;
     private bool _selectingPage;
+    private bool _selectingNotebook;
     private ImportedPageListItemViewModel? _lastConfirmedSelectedPage;
+    private NotebookListItemViewModel? _lastConfirmedSelectedNotebook;
 
     public MainView()
     {
@@ -36,6 +38,7 @@ public sealed partial class MainView : Page
         _initialized = true;
         await ViewModel.InitializeAsync();
         _lastConfirmedSelectedPage = ViewModel.SelectedPage;
+        _lastConfirmedSelectedNotebook = ViewModel.SelectedNotebook;
         NotebookPageSurface.RefreshView();
         Bindings.Update();
     }
@@ -88,6 +91,47 @@ public sealed partial class MainView : Page
         Bindings.Update();
     }
 
+    private async void Notebooks_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_selectingNotebook)
+        {
+            return;
+        }
+
+        _selectingNotebook = true;
+        try
+        {
+            var requestedNotebook = ViewModel.SelectedNotebook;
+            if (requestedNotebook is null)
+            {
+                Bindings.Update();
+                return;
+            }
+
+            if (requestedNotebook.Id == _lastConfirmedSelectedNotebook?.Id)
+            {
+                return;
+            }
+
+            if (!await ConfirmDiscardUnsavedTextEditsAsync())
+            {
+                ViewModel.SelectedNotebook = _lastConfirmedSelectedNotebook;
+                Bindings.Update();
+                return;
+            }
+
+            await ViewModel.SelectNotebookAsync(requestedNotebook);
+            _lastConfirmedSelectedNotebook = ViewModel.SelectedNotebook;
+            _lastConfirmedSelectedPage = ViewModel.SelectedPage;
+            NotebookPageSurface.RefreshView();
+            Bindings.Update();
+        }
+        finally
+        {
+            _selectingNotebook = false;
+        }
+    }
+
     private async void NotebookPageSurface_NewPageRequested(object? sender, EventArgs e)
     {
         await NewPageAsync();
@@ -106,6 +150,42 @@ public sealed partial class MainView : Page
     private async void DeleteSelectedPage_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
         await DeleteSelectedPageWithConfirmationAsync();
+    }
+
+    private async void NewNotebook_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (!await ConfirmDiscardUnsavedTextEditsAsync())
+        {
+            return;
+        }
+
+        var titleBox = new TextBox
+        {
+            Header = "Notebook name",
+            PlaceholderText = "Notebook"
+        };
+
+        var dialog = new ContentDialog
+        {
+            Title = "Create notebook",
+            Content = titleBox,
+            PrimaryButtonText = "Create",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Primary,
+            XamlRoot = XamlRoot
+        };
+
+        var result = await dialog.ShowAsync();
+        if (result != ContentDialogResult.Primary || string.IsNullOrWhiteSpace(titleBox.Text))
+        {
+            return;
+        }
+
+        await ViewModel.CreateNotebookAsync(titleBox.Text);
+        _lastConfirmedSelectedNotebook = ViewModel.SelectedNotebook;
+        _lastConfirmedSelectedPage = ViewModel.SelectedPage;
+        NotebookPageSurface.RefreshView();
+        Bindings.Update();
     }
 
     private async void NewPageKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)

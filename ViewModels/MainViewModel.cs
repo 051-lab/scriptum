@@ -11,8 +11,10 @@ namespace Scriptum.ViewModels;
 public partial class MainViewModel : ViewModelBase
 {
     private readonly IPageStorageService _storageService;
+    private readonly INotebookStorageService _notebookStorageService;
     private readonly string _importDirectory;
     private readonly List<ImportedPageListItemViewModel> _allImportedPages = new();
+    private readonly List<Notebook> _allNotebooks = new();
 
     [ObservableProperty]
     private string _applicationTitle = "Scriptum";
@@ -23,23 +25,28 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     private ImportedPageListItemViewModel? _selectedPage;
 
+    [ObservableProperty]
+    private NotebookListItemViewModel? _selectedNotebook;
+
     private string _pageSearchText = string.Empty;
 
     public MainViewModel()
-        : this(new SqlitePageStorageService())
+        : this(new SqlitePageStorageService(), new SqliteNotebookStorageService())
     {
     }
 
-    public MainViewModel(IPageStorageService storageService)
+    public MainViewModel(
+        IPageStorageService storageService,
+        INotebookStorageService? notebookStorageService = null)
     {
         _storageService = storageService;
+        _notebookStorageService = notebookStorageService ?? new JsonNotebookStorageService();
         DefaultNotebook = Notebook.CreateDefault();
         _importDirectory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Scriptum",
             "ImportedPages");
         NotebookPage = new NotebookPageViewModel(_storageService, defaultNotebook: DefaultNotebook);
-        Notebooks.Add(new NotebookListItemViewModel(DefaultNotebook));
     }
 
     public Notebook DefaultNotebook { get; }
@@ -71,11 +78,12 @@ public partial class MainViewModel : ViewModelBase
     public bool HasPageSearchFilter => !string.IsNullOrWhiteSpace(PageSearchText);
 
     public string PageSearchResultLabel => HasPageSearchFilter
-        ? $"{ImportedPages.Count} of {_allImportedPages.Count} pages"
+        ? $"{ImportedPages.Count} of {GetActiveNotebookPageCount()} pages"
         : $"{ImportedPages.Count} pages";
 
     public async Task InitializeAsync()
     {
+        await LoadNotebooksAsync();
         await RefreshImportedPagesAsync();
         if (SelectedPage is not null)
         {
@@ -125,6 +133,49 @@ public partial class MainViewModel : ViewModelBase
         {
             SelectedPage = ImportedPages.FirstOrDefault(item => item.Id == loadedPage.Id) ?? page;
         }
+    }
+
+    public async Task SelectNotebookAsync(NotebookListItemViewModel? notebook, CancellationToken cancellationToken = default)
+    {
+        if (notebook is null)
+        {
+            return;
+        }
+
+        SelectedNotebook = notebook;
+        NotebookPage.SetActiveNotebook(notebook.Notebook);
+        ApplyPageSearchFilter();
+
+        SelectedPage = ImportedPages.FirstOrDefault();
+        if (SelectedPage is not null)
+        {
+            await SelectPageAsync(SelectedPage, cancellationToken);
+        }
+        else
+        {
+            NotebookPage.ResetPage();
+        }
+    }
+
+    public async Task CreateNotebookAsync(string title, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            return;
+        }
+
+        var timestamp = DateTimeOffset.UtcNow;
+        var notebook = new Notebook
+        {
+            Title = title.Trim(),
+            Description = "Notebook archive",
+            CreatedAt = timestamp,
+            UpdatedAt = timestamp
+        };
+
+        await _notebookStorageService.SaveNotebookAsync(notebook, cancellationToken);
+        await LoadNotebooksAsync(notebook.Id, cancellationToken);
+        await SelectNotebookAsync(SelectedNotebook, cancellationToken);
     }
 
     public Task NewPageAsync()
@@ -200,11 +251,40 @@ public partial class MainViewModel : ViewModelBase
         RefreshNotebookListItems(pages);
     }
 
+    private async Task LoadNotebooksAsync(Guid? selectedNotebookId = null, CancellationToken cancellationToken = default)
+    {
+        var notebooks = (await _notebookStorageService.LoadNotebooksAsync(cancellationToken)).ToList();
+        if (notebooks.All(notebook => notebook.Id != DefaultNotebook.Id))
+        {
+            await _notebookStorageService.SaveNotebookAsync(DefaultNotebook, cancellationToken);
+            notebooks.Add(DefaultNotebook);
+        }
+
+        _allNotebooks.Clear();
+        _allNotebooks.AddRange(notebooks
+            .OrderBy(notebook => notebook.Id == DefaultNotebook.Id ? 0 : 1)
+            .ThenBy(notebook => notebook.Title, StringComparer.OrdinalIgnoreCase));
+
+        RefreshNotebookListItems(_allImportedPages.Select(item => item.NotebookId).ToList());
+        SelectedNotebook = Notebooks.FirstOrDefault(notebook => notebook.Id == selectedNotebookId)
+            ?? Notebooks.FirstOrDefault(notebook => notebook.Id == SelectedNotebook?.Id)
+            ?? Notebooks.FirstOrDefault(notebook => notebook.Id == DefaultNotebook.Id);
+
+        if (SelectedNotebook is not null)
+        {
+            NotebookPage.SetActiveNotebook(SelectedNotebook.Notebook);
+        }
+    }
+
     private void ApplyPageSearchFilter(Guid? preferredSelectedPageId = null)
     {
+        var activeNotebookId = SelectedNotebook?.Id ?? DefaultNotebook.Id;
+        var notebookPages = _allImportedPages
+            .Where(page => (page.NotebookId ?? DefaultNotebook.Id) == activeNotebookId)
+            .ToList();
         var filteredPages = string.IsNullOrWhiteSpace(PageSearchText)
-            ? _allImportedPages
-            : _allImportedPages
+            ? notebookPages
+            : notebookPages
                 .Where(page => page.SearchText.Contains(PageSearchText.Trim(), StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
@@ -241,15 +321,39 @@ public partial class MainViewModel : ViewModelBase
 
     private void RefreshNotebookListItems(IReadOnlyCollection<NotebookPage> pages)
     {
-        var defaultNotebookItem = Notebooks.FirstOrDefault(item => item.Id == DefaultNotebook.Id);
-        if (defaultNotebookItem is null)
+        var pageCounts = pages
+            .GroupBy(page => page.NotebookId ?? DefaultNotebook.Id)
+            .ToDictionary(group => group.Key, group => group.Count());
+        RefreshNotebookListItems(pageCounts);
+    }
+
+    private void RefreshNotebookListItems(IReadOnlyCollection<Guid?> notebookIds)
+    {
+        var pageCounts = notebookIds
+            .GroupBy(notebookId => notebookId ?? DefaultNotebook.Id)
+            .ToDictionary(group => group.Key, group => group.Count());
+        RefreshNotebookListItems(pageCounts);
+    }
+
+    private void RefreshNotebookListItems(IReadOnlyDictionary<Guid, int> pageCounts)
+    {
+        Notebooks.Clear();
+        foreach (var notebook in _allNotebooks)
         {
-            Notebooks.Insert(0, new NotebookListItemViewModel(DefaultNotebook));
-            defaultNotebookItem = Notebooks[0];
+            var pageCount = pageCounts.TryGetValue(notebook.Id, out var count) ? count : 0;
+            Notebooks.Add(new NotebookListItemViewModel(notebook));
+            Notebooks[^1].UpdateFrom(notebook, pageCount);
         }
 
-        var defaultPageCount = pages.Count(page => page.NotebookId == DefaultNotebook.Id);
-        defaultNotebookItem.UpdateFrom(DefaultNotebook, defaultPageCount);
+        SelectedNotebook = Notebooks.FirstOrDefault(notebook => notebook.Id == SelectedNotebook?.Id)
+            ?? Notebooks.FirstOrDefault(notebook => notebook.Id == DefaultNotebook.Id)
+            ?? Notebooks.FirstOrDefault();
+    }
+
+    private int GetActiveNotebookPageCount()
+    {
+        var activeNotebookId = SelectedNotebook?.Id ?? DefaultNotebook.Id;
+        return _allImportedPages.Count(page => (page.NotebookId ?? DefaultNotebook.Id) == activeNotebookId);
     }
 
     public async Task<bool> DeleteSelectedPageAsync(CancellationToken cancellationToken = default)

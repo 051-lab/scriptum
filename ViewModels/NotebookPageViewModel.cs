@@ -25,7 +25,7 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
     private readonly IPageStorageService _storageService;
     private readonly IPageImagePreprocessingService _preprocessingService;
     private readonly ITranscriptionProvider _transcriptionProvider;
-    private readonly Notebook _defaultNotebook;
+    private Notebook _activeNotebook;
     private readonly string _importDirectory;
     private string _editablePageTitle = "Untitled notebook page";
     private string _correctedTranscriptionDraft = string.Empty;
@@ -47,7 +47,7 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         _storageService = storageService;
         _preprocessingService = preprocessingService ?? new NoOpPageImagePreprocessingService();
         _transcriptionProvider = transcriptionProvider ?? new MockTranscriptionProvider();
-        _defaultNotebook = defaultNotebook ?? Notebook.CreateDefault();
+        _activeNotebook = defaultNotebook ?? Notebook.CreateDefault();
         _importDirectory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Scriptum",
@@ -93,7 +93,7 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
 
     public string SourceFileLabel => CurrentPage.OriginalFileName ?? "No page imported";
 
-    public string NotebookLabel => CurrentPage.NotebookTitle ?? _defaultNotebook.Title;
+    public string NotebookLabel => CurrentPage.NotebookTitle ?? _activeNotebook.Title;
 
     public string ImageDetails => GetImageDetails();
 
@@ -210,8 +210,8 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
                 CreatedAt = importedAt,
                 UpdatedAt = importedAt,
                 ImportedAt = importedAt,
-                NotebookId = _defaultNotebook.Id,
-                NotebookTitle = _defaultNotebook.Title,
+                NotebookId = _activeNotebook.Id,
+                NotebookTitle = _activeNotebook.Title,
                 SourceImagePath = destinationPath,
                 OriginalFileName = Path.GetFileName(sourceImagePath),
                 SourceImageBytes = fileInfo.Length,
@@ -337,8 +337,8 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         CurrentPage = new NotebookPage
         {
             Title = "Untitled notebook page",
-            NotebookId = _defaultNotebook.Id,
-            NotebookTitle = _defaultNotebook.Title
+            NotebookId = _activeNotebook.Id,
+            NotebookTitle = _activeNotebook.Title
         };
         PageImage = null;
         SyncEditableFieldsFromCurrentPage();
@@ -593,6 +593,17 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         OnPropertyChanged(nameof(StatusMessage));
     }
 
+    public void SetActiveNotebook(Notebook notebook)
+    {
+        _activeNotebook = notebook;
+        if (!HasImportedImage)
+        {
+            CurrentPage.NotebookId = notebook.Id;
+            CurrentPage.NotebookTitle = notebook.Title;
+            OnPropertyChanged(nameof(NotebookLabel));
+        }
+    }
+
     private void NotifyPageStateChanged()
     {
         OnPropertyChanged(nameof(StatusMessage));
@@ -660,12 +671,12 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
     {
         if (page.NotebookId is null || page.NotebookId == Guid.Empty)
         {
-            page.NotebookId = _defaultNotebook.Id;
+            page.NotebookId = _activeNotebook.Id;
         }
 
         if (string.IsNullOrWhiteSpace(page.NotebookTitle))
         {
-            page.NotebookTitle = _defaultNotebook.Title;
+            page.NotebookTitle = _activeNotebook.Title;
         }
     }
 
