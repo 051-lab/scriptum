@@ -84,10 +84,11 @@ python -m pip install torch pillow transformers sentencepiece
 $env:SCRIPTUM_TRANSCRIPTION_PROVIDER = "trocr"
 $env:SCRIPTUM_TROCR_PYTHON = ".\.venv-trocr\Scripts\python.exe"
 $env:SCRIPTUM_TROCR_MODEL = "microsoft/trocr-base-handwritten"
+$env:SCRIPTUM_TROCR_MODE = "lines"
 
 dotnet run --project Scriptum.csproj --configuration Release -p:Platform=x64
 ```
 
-The current TrOCR helper runs on the full prepared page image. It is useful for local experimentation, but better handwriting results will likely require a future line-detection step that crops the page into individual handwritten lines before running TrOCR.
+The TrOCR helper defaults to heuristic line detection, crops the page into horizontal handwriting bands, transcribes each crop, and reassembles the text. Set `SCRIPTUM_TROCR_MODE` to `page` to run the model against the full prepared page image instead.
 
 WSL can be useful for Git and text editing, but WinUI 3 launch and manual UI testing should be run from the Windows desktop session so the app can create a real window and receive mouse, pen, or touch input.

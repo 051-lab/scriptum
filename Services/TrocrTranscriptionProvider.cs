@@ -53,6 +53,8 @@ public sealed class TrocrTranscriptionProvider : ITranscriptionProvider
         startInfo.ArgumentList.Add(preprocessingResult.PreparedImagePath);
         startInfo.ArgumentList.Add("--model");
         startInfo.ArgumentList.Add(_options.Model);
+        startInfo.ArgumentList.Add("--mode");
+        startInfo.ArgumentList.Add(_options.Mode);
 
         using var process = new Process
         {

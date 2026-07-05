@@ -143,7 +143,8 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [x] Implement real OpenAI-compatible Qwen vision provider.
 - [ ] Validate real Qwen-VL provider with endpoint/API-key configuration.
 - [ ] Validate TrOCR provider against real notebook photos.
-- [ ] Add handwriting line detection for TrOCR.
+- [x] Add heuristic handwriting line detection for TrOCR.
+- [ ] Validate and tune TrOCR line detection against real notebook photos.
 - [ ] Add transcription provider metadata and processing timestamps.
 - [ ] Add transcription failure persistence without leaking secrets.
 

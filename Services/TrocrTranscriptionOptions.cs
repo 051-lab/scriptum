@@ -8,5 +8,7 @@ public sealed class TrocrTranscriptionOptions
 
     public string Model { get; set; } = "microsoft/trocr-base-handwritten";
 
+    public string Mode { get; set; } = "lines";
+
     public int TimeoutSeconds { get; set; } = 180;
 }

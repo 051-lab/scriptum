@@ -20,6 +20,7 @@ public static class TranscriptionProviderFactory
                     ?? Path.Combine("tools", "transcribe_trocr.py"),
                 Model = Environment.GetEnvironmentVariable("SCRIPTUM_TROCR_MODEL")
                     ?? "microsoft/trocr-base-handwritten",
+                Mode = Environment.GetEnvironmentVariable("SCRIPTUM_TROCR_MODE") ?? "lines",
                 TimeoutSeconds = int.TryParse(
                     Environment.GetEnvironmentVariable("SCRIPTUM_TROCR_TIMEOUT_SECONDS"),
                     out var timeoutSeconds)
