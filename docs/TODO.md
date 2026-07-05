@@ -96,11 +96,12 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 
 ### P1.5 Add notebook model
 
-- [ ] Add `Notebook` model.
-- [ ] Add notebook ID, title, created, and updated fields.
-- [ ] Connect pages to notebooks.
-- [ ] Create default notebook on first launch.
-- [ ] Expose current notebook state in the ViewModel.
+- [x] Add `Notebook` model.
+- [x] Add notebook ID, title, created, and updated fields.
+- [x] Connect pages to the default notebook.
+- [x] Create default notebook on first launch.
+- [x] Expose current notebook state in the ViewModel.
+- [ ] Add full notebook grouping and selection.
 
 ---
 
@@ -189,7 +190,7 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 6. [x] Load the latest imported page.
 7. [x] Add multiple imported pages to the local page library.
 8. [x] Add sidebar page navigation.
-9. [ ] Add notebook model.
+9. [x] Add notebook model.
 10. [x] Add image preprocessing pipeline.
 11. [x] Add transcription provider boundary.
 12. [x] Add transcription UI.

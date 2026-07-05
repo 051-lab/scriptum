@@ -25,6 +25,7 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
     private readonly IPageStorageService _storageService;
     private readonly IPageImagePreprocessingService _preprocessingService;
     private readonly ITranscriptionProvider _transcriptionProvider;
+    private readonly Notebook _defaultNotebook;
     private readonly string _importDirectory;
     private string _editablePageTitle = "Untitled notebook page";
     private string _correctedTranscriptionDraft = string.Empty;
@@ -40,11 +41,13 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
     public NotebookPageViewModel(
         IPageStorageService storageService,
         IPageImagePreprocessingService? preprocessingService = null,
-        ITranscriptionProvider? transcriptionProvider = null)
+        ITranscriptionProvider? transcriptionProvider = null,
+        Notebook? defaultNotebook = null)
     {
         _storageService = storageService;
         _preprocessingService = preprocessingService ?? new NoOpPageImagePreprocessingService();
         _transcriptionProvider = transcriptionProvider ?? new MockTranscriptionProvider();
+        _defaultNotebook = defaultNotebook ?? Notebook.CreateDefault();
         _importDirectory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Scriptum",
@@ -89,6 +92,8 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
     }
 
     public string SourceFileLabel => CurrentPage.OriginalFileName ?? "No page imported";
+
+    public string NotebookLabel => CurrentPage.NotebookTitle ?? _defaultNotebook.Title;
 
     public string ImageDetails => GetImageDetails();
 
@@ -199,6 +204,8 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
                 CreatedAt = importedAt,
                 UpdatedAt = importedAt,
                 ImportedAt = importedAt,
+                NotebookId = _defaultNotebook.Id,
+                NotebookTitle = _defaultNotebook.Title,
                 SourceImagePath = destinationPath,
                 OriginalFileName = Path.GetFileName(sourceImagePath),
                 SourceImageBytes = fileInfo.Length,
@@ -264,6 +271,7 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
                 return null;
             }
 
+            EnsurePageNotebook(page);
             CurrentPage = page;
             RefreshPageImage();
             SyncEditableFieldsFromCurrentPage();
@@ -298,6 +306,7 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
                 return null;
             }
 
+            EnsurePageNotebook(page);
             CurrentPage = page;
             RefreshPageImage();
             SyncEditableFieldsFromCurrentPage();
@@ -321,7 +330,9 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
     {
         CurrentPage = new NotebookPage
         {
-            Title = "Untitled notebook page"
+            Title = "Untitled notebook page",
+            NotebookId = _defaultNotebook.Id,
+            NotebookTitle = _defaultNotebook.Title
         };
         PageImage = null;
         SyncEditableFieldsFromCurrentPage();
@@ -511,6 +522,7 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasReadablePageImage));
         OnPropertyChanged(nameof(IsImportedImageMissing));
         OnPropertyChanged(nameof(PageTitle));
+        OnPropertyChanged(nameof(NotebookLabel));
         OnPropertyChanged(nameof(SourceFileLabel));
         OnPropertyChanged(nameof(ImageDetails));
         OnPropertyChanged(nameof(ImageSizeLabel));
@@ -557,6 +569,19 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         CorrectedTranscriptionDraft = CurrentPage.CorrectedTranscriptionText
             ?? CurrentPage.TranscriptionText
             ?? string.Empty;
+    }
+
+    private void EnsurePageNotebook(NotebookPage page)
+    {
+        if (page.NotebookId is null || page.NotebookId == Guid.Empty)
+        {
+            page.NotebookId = _defaultNotebook.Id;
+        }
+
+        if (string.IsNullOrWhiteSpace(page.NotebookTitle))
+        {
+            page.NotebookTitle = _defaultNotebook.Title;
+        }
     }
 
     private void RefreshPageImage()

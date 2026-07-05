@@ -30,16 +30,22 @@ public partial class MainViewModel : ViewModelBase
     public MainViewModel(IPageStorageService storageService)
     {
         _storageService = storageService;
+        DefaultNotebook = Notebook.CreateDefault();
         _importDirectory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Scriptum",
             "ImportedPages");
-        NotebookPage = new NotebookPageViewModel(_storageService);
+        NotebookPage = new NotebookPageViewModel(_storageService, defaultNotebook: DefaultNotebook);
+        Notebooks.Add(new NotebookListItemViewModel(DefaultNotebook));
     }
+
+    public Notebook DefaultNotebook { get; }
 
     public NotebookPageViewModel NotebookPage { get; }
 
     public ObservableCollection<ImportedPageListItemViewModel> ImportedPages { get; } = new();
+
+    public ObservableCollection<NotebookListItemViewModel> Notebooks { get; } = new();
 
     public bool HasImportedPages => ImportedPages.Count > 0;
 
@@ -140,6 +146,11 @@ public partial class MainViewModel : ViewModelBase
         var pages = (await _storageService.LoadPagesAsync(cancellationToken))
             .Where(page => !string.IsNullOrWhiteSpace(page.SourceImagePath))
             .ToList();
+        foreach (var page in pages)
+        {
+            EnsurePageNotebook(page);
+        }
+
         var pageIds = pages.Select(page => page.Id).ToHashSet();
 
         for (var index = ImportedPages.Count - 1; index >= 0; index--)
@@ -171,7 +182,34 @@ public partial class MainViewModel : ViewModelBase
 
         SelectedPage = ImportedPages.FirstOrDefault(page => page.Id == selectedPageId)
             ?? ImportedPages.FirstOrDefault();
+        RefreshNotebookListItems(pages);
         OnPropertyChanged(nameof(HasImportedPages));
+    }
+
+    private void EnsurePageNotebook(NotebookPage page)
+    {
+        if (page.NotebookId is null || page.NotebookId == Guid.Empty)
+        {
+            page.NotebookId = DefaultNotebook.Id;
+        }
+
+        if (string.IsNullOrWhiteSpace(page.NotebookTitle))
+        {
+            page.NotebookTitle = DefaultNotebook.Title;
+        }
+    }
+
+    private void RefreshNotebookListItems(IReadOnlyCollection<NotebookPage> pages)
+    {
+        var defaultNotebookItem = Notebooks.FirstOrDefault(item => item.Id == DefaultNotebook.Id);
+        if (defaultNotebookItem is null)
+        {
+            Notebooks.Insert(0, new NotebookListItemViewModel(DefaultNotebook));
+            defaultNotebookItem = Notebooks[0];
+        }
+
+        var defaultPageCount = pages.Count(page => page.NotebookId == DefaultNotebook.Id);
+        defaultNotebookItem.UpdateFrom(DefaultNotebook, defaultPageCount);
     }
 
     public async Task<bool> DeleteSelectedPageAsync(CancellationToken cancellationToken = default)

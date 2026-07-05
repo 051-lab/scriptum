@@ -117,15 +117,28 @@
                                    Foreground="#81796C"
                                    FontSize="12"
                                    FontWeight="SemiBold" />
-                        <TextBlock Text="Scriptum"
-                                   Foreground="#F7F1E6"
-                                   FontWeight="SemiBold" />
-                        <TextBlock Text="Auralis"
-                                   Foreground="#D6CFC4" />
-                        <TextBlock Text="Metallic"
-                                   Foreground="#D6CFC4" />
-                        <TextBlock Text="Dev Notes"
-                                   Foreground="#D6CFC4" />
+                        <ListView ItemsSource="{x:Bind ViewModel.Notebooks, Mode=OneWay}"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  IsItemClickEnabled="False"
+                                  SelectionMode="None">
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="viewModels:NotebookListItemViewModel">
+                                    <Grid Padding="4">
+                                        <StackPanel Spacing="2">
+                                            <TextBlock Text="{x:Bind Title}"
+                                                       Foreground="#F7F1E6"
+                                                       FontWeight="SemiBold"
+                                                       TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Text="{x:Bind Metadata}"
+                                                       Foreground="#AFA89C"
+                                                       FontSize="12"
+                                                       TextTrimming="CharacterEllipsis" />
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
                     </StackPanel>
                 </Grid>
 

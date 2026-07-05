@@ -15,6 +15,10 @@ public sealed class NotebookPage
 
     public DateTimeOffset? ImportedAt { get; set; }
 
+    public Guid? NotebookId { get; set; }
+
+    public string? NotebookTitle { get; set; }
+
     public string? SourceImagePath { get; set; }
 
     public string? OriginalFileName { get; set; }

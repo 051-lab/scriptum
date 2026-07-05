@@ -300,6 +300,9 @@
                             <TextBlock Text="{x:Bind ViewModel.ImageDetails, Mode=OneWay}"
                                        Foreground="#6F675C"
                                        TextWrapping="Wrap" />
+                            <TextBlock Text="{x:Bind ViewModel.NotebookLabel, Mode=OneWay}"
+                                       Foreground="#6F675C"
+                                       TextWrapping="Wrap" />
                             <TextBlock Text="{x:Bind ViewModel.UpdatedDateLabel, Mode=OneWay}"
                                        Foreground="#6F675C"
                                        TextWrapping="Wrap" />
