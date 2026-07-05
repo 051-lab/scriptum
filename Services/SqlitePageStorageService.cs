@@ -98,6 +98,45 @@ public sealed class SqlitePageStorageService : IPageStorageService, IDisposable
         return DeserializePage(reader);
     }
 
+    public async Task<IReadOnlyList<NotebookPage>> LoadPagesAsync(CancellationToken cancellationToken = default)
+    {
+        await EnsureInitializedAsync(cancellationToken);
+
+        using var command = _databaseContext.Connection.CreateCommand();
+        command.CommandText = """
+            SELECT payload
+            FROM notebook_pages
+            ORDER BY updated_at DESC;
+            """;
+
+        var pages = new List<NotebookPage>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            var page = DeserializePage(reader);
+            if (page is not null)
+            {
+                pages.Add(page);
+            }
+        }
+
+        return pages;
+    }
+
+    public async Task DeletePageAsync(Guid pageId, CancellationToken cancellationToken = default)
+    {
+        await EnsureInitializedAsync(cancellationToken);
+
+        using var command = _databaseContext.Connection.CreateCommand();
+        command.CommandText = """
+            DELETE FROM notebook_pages
+            WHERE id = $id;
+            """;
+        command.Parameters.AddWithValue("$id", pageId.ToString("N"));
+
+        await command.ExecuteNonQueryAsync(cancellationToken);
+    }
+
     public void Dispose()
     {
         if (_disposed)
@@ -136,8 +175,19 @@ public sealed class SqlitePageStorageService : IPageStorageService, IDisposable
 
     private NotebookPage? DeserializePage(SqliteDataReader reader)
     {
-        var payload = (byte[])reader["payload"];
-        return JsonSerializer.Deserialize<NotebookPage>(payload, _jsonOptions);
+        try
+        {
+            var payload = (byte[])reader["payload"];
+            return JsonSerializer.Deserialize<NotebookPage>(payload, _jsonOptions);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+        catch (NotSupportedException)
+        {
+            return null;
+        }
     }
 
     private static DatabaseContext CreateDefaultDatabaseContext()

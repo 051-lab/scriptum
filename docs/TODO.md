@@ -1,14 +1,14 @@
 # Scriptum Prioritized Development Todo
 
-_Last updated: 2026-07-02_
+_Last updated: 2026-07-05_
 
-Scriptum is now in the **buildable physical-notebook capture MVP** stage. CI restore and CI build are green, and the repository has been flattened so the WinUI project lives at the repository root.
+Scriptum is now in the **capture-first notebook archive MVP** stage. CI restore and CI build are green, and the repository has been flattened so the WinUI project lives at the repository root.
 
 The product direction has been corrected: Scriptum is not primarily for handwriting notes directly inside the app. The core workflow is to import or capture real physical notebook pages, preserve the original page image, transcribe handwriting into editable/searchable text, and make those notes useful for later development work.
 
 See `docs/PRODUCT_DIRECTION.md` for the source-of-truth product direction.
 
-## Priority key
+## Priority Key
 
 - **P0**: Blocks the app from being usable or trusted.
 - **P1**: Required for the physical-notebook capture MVP.
@@ -17,9 +17,9 @@ See `docs/PRODUCT_DIRECTION.md` for the source-of-truth product direction.
 
 ---
 
-## Phase 0: Build stability and repo hygiene
+## Phase 0: Build Stability And Repo Hygiene
 
-### P0.1 Fix CI restore failure — complete
+### P0.1 Fix CI restore failure - complete
 
 - [x] Capture restore diagnostics from GitHub Actions.
 - [x] Fix SQLCipher package reference by using `SQLitePCLRaw.bundle_e_sqlcipher`.
@@ -27,144 +27,136 @@ See `docs/PRODUCT_DIRECTION.md` for the source-of-truth product direction.
 - [x] Remove unused packages from restore surface.
 - [x] Confirm `dotnet restore` passes in CI.
 
-### P0.2 Fix compile/build errors — complete
+### P0.2 Fix compile/build errors - complete
 
 - [x] Capture build diagnostics from GitHub Actions.
 - [x] Remove duplicate explicit `PRIResource` include for `Strings/en-US/Resources.resw`.
 - [x] Confirm `dotnet build` passes in CI.
 
-### P0.3 Confirm local Windows launch — next
+### P0.3 Confirm local Windows launch - complete
 
-- [ ] Clone or pull `main` locally.
-- [ ] Restore packages locally.
-- [ ] Build from Visual Studio or Windows terminal.
-- [ ] Launch the app.
-- [ ] Confirm `MainWindow` opens without crashing.
-- [ ] Confirm `MainView` displays the current development surface.
+- [x] Clone or pull `main` locally.
+- [x] Restore packages locally.
+- [x] Build from Visual Studio or Windows terminal.
+- [x] Launch the app.
+- [x] Confirm `MainWindow` opens without crashing.
+- [x] Confirm `MainView` displays the import-first notebook archive shell.
+- [x] Confirm current UI opens for further MVP work.
 
-### P0.4 Clean project structure
+### P0.4 Clean project structure - complete
 
 - [x] Move project files from nested `Scriptum/` folder to repository root.
 - [x] Update CI to build `Scriptum.csproj` from repository root.
-- [ ] Confirm `Scriptum.sln` works locally.
-- [ ] Confirm `.gitignore` covers build artifacts, packages, logs, user files, and secrets.
-- [ ] Add local development setup instructions to the README.
+- [x] Confirm `Scriptum.sln` works locally.
+- [x] Confirm `.gitignore` covers build artifacts, packages, logs, user files, and secrets.
+- [x] Confirm folders are organized around `Models`, `ViewModels`, `Views`, `Services`, `Data`, `Assets`, and `docs`.
+- [x] Add local development setup instructions to the README.
+- [x] Reduce duplicate GitHub Actions notifications by running CI on PRs and `main` only.
 
 ---
 
-## Phase 1: Physical notebook page import MVP
+## Phase 1: First Physical-Notebook Capture Loop
 
-Goal: create the smallest useful Scriptum experience: open app, import/capture a real notebook page image, display it, save metadata securely, close, reopen, and reload it.
+Goal: create the smallest useful Scriptum experience: import or capture a page from a physical notebook, save it locally, close and reopen the app, load the latest page, and prepare the page image for transcription.
 
-### P1.1 Replace drawing-first UI with import-first shell
+### P1.1 Add page capture/import
 
-- [ ] Add primary Import Page action.
-- [ ] Add capture placeholder action for future camera/scanner flow.
-- [ ] Display selected/imported page image in the main view.
-- [ ] Move the drawing canvas behind a development/annotation-only path.
-- [ ] Make the imported image the center of the UI.
+- [x] Add Import Image command.
+- [x] Support common notebook photo/image formats.
+- [x] Copy imported page images into local app storage.
+- [x] Display the imported page image in the main view.
+- [x] Show basic image metadata: filename, imported timestamp, dimensions.
+- [ ] Add clear failure messages for unsupported or unreadable files.
+- [ ] Add camera/scanner capture flow if feasible.
 
-### P1.2 Add imported page domain model
+### P1.2 Stabilize physical page model
 
-- [ ] Add `ImportedPage` model with ID, title, created/updated timestamps, source type, and notes.
-- [ ] Add `PageImage` metadata with original local image path, file name, dimensions, content type, checksum, and thumbnail path.
-- [ ] Add `Transcription` model with status, raw text, corrected text, provider metadata, and timestamps.
-- [ ] Treat vector ink/strokes as optional annotation data, not primary notebook data.
-- [ ] Add model versioning for future migrations.
+- [x] Add physical notebook page model fields: ID, title, source image path, created, updated, imported timestamp.
+- [x] Add `Notebook` model.
+- [x] Connect pages to the default notebook.
+- [ ] Add image checksum or content identity for duplicate detection.
+- [ ] Add model versioning.
+- [ ] Prepare metadata for future notebook grouping, transcription, tags, and export.
 
-### P1.3 Import image into app-managed local storage
-
-- [ ] Support importing PNG/JPEG files from disk.
-- [ ] Copy imported images into an app-managed local storage folder.
-- [ ] Preserve the original imported image without destructive preprocessing.
-- [ ] Generate a stable local file path for each imported page.
-- [ ] Compute a checksum or content hash to detect duplicates or corruption.
-
-### P1.4 Persist imported page metadata with SQLCipher
+### P1.3 Prove SQLCipher page save/load
 
 - [ ] Confirm encrypted database opens.
-- [ ] Add `imported_pages` table.
-- [ ] Add `page_images` table or image metadata fields.
-- [ ] Save page metadata and local image path.
-- [ ] Close and reopen the app.
-- [ ] Load the latest imported page.
-- [ ] Display the saved original image again.
-- [ ] Add clear database/image-file failure messages.
+- [ ] Confirm physical page table is created.
+- [x] Save imported page metadata from the UI.
+- [x] Load the latest page.
+- [x] Confirm the page image and metadata restore correctly.
+- [x] List imported pages from encrypted local storage.
+- [x] Select an imported page from the sidebar.
+- [ ] Add clear database failure messages.
+- [x] Add corrupt-payload handling.
+- [x] Add missing imported-image recovery state.
 
-### P1.5 Add image viewer basics
+### P1.4 Add basic page lifecycle
 
-- [ ] Show the full imported page clearly.
-- [ ] Add zoom in/out.
-- [ ] Add pan.
-- [ ] Add fit-to-window.
-- [ ] Add actual-size view.
-- [ ] Preserve readability for notebook photos and scans.
-
----
-
-## Phase 2: OCR/transcription MVP
-
-Goal: turn imported physical notebook pages into editable/searchable text while preserving the original image.
-
-### P2.1 Add preprocessing pipeline
-
-- [ ] Add image preprocessing service interface.
-- [ ] Load original image from local path.
-- [ ] Create a derived preprocessed image artifact without overwriting the original.
-- [ ] Add crop/deskew/contrast cleanup hooks.
-- [ ] Add debug output only for development mode.
-
-### P2.2 Add transcription provider boundary
-
-- [ ] Add `ITranscriptionProvider` interface.
-- [ ] Add request/response models for page-image transcription.
-- [ ] Add mock provider for local testing.
-- [ ] Add Qwen-VL or other vision provider adapter later.
-- [ ] Keep provider implementation swappable.
-
-### P2.3 Add transcription UI
-
-- [ ] Add Transcribe Page action.
-- [ ] Show transcription status: not started, queued, processing, complete, failed.
-- [ ] Show raw transcription output.
-- [ ] Add editable corrected transcription field.
-- [ ] Save corrected transcription.
-- [ ] Preserve transcription across app restart.
-
-### P2.4 Persist transcription records
-
-- [ ] Add `transcriptions` table.
-- [ ] Link transcription records to imported pages.
-- [ ] Store raw text and corrected text separately.
-- [ ] Store provider metadata and processing timestamps.
-- [ ] Store failure messages safely without leaking secrets.
+- [x] Add New Page command.
+- [x] Add page title field.
+- [x] Add rename behavior.
+- [x] Add delete behavior with confirmation.
+- [x] Add updated timestamp display.
+- [x] Add dirty-state tracking.
+- [x] Add unsaved-edit guard before page switching/reset actions.
+- [x] Add save status/confirmation.
+- [ ] Add full notebook grouping and selection.
 
 ---
 
-## Phase 3: Notebook organization and daily usability
+## Phase 2: MVP Navigation And Daily Usability
 
-- [ ] Add `Notebook` model for grouping imported physical pages.
-- [ ] Add page list/sidebar.
-- [ ] Add page title/rename behavior.
-- [ ] Add delete behavior with confirmation.
+- [x] Add sidebar page navigation.
+- [x] Add basic sidebar search over titles, filenames, notebooks, and saved transcription text.
+- [x] Preserve sidebar selection and refresh edited titles.
+- [x] Add basic image rotation workflow for photographed notebook pages.
+- [x] Add keyboard shortcuts: Import, Save, Load Latest, Delete, Transcribe.
+- [x] Add New Page command and shortcut.
+- [ ] Add import queue or recent imports list.
+- [ ] Add basic image crop workflow for photographed notebook pages.
+- [ ] Add zoom and pan.
+- [ ] Add page image viewer polish.
+- [ ] Add before/after preprocessing preview.
+- [ ] Add page thumbnails.
+- [ ] Add command palette.
+
+---
+
+## Phase 3: Transcription MVP
+
+- [x] Prepare imported page image for OCR/transcription.
+- [x] Add preprocessing service boundary.
+- [x] Add prepared-image storage path and transform metadata placeholders.
+- [x] Add disabled OpenCVSharp adapter shell or equivalent preprocessing adapter.
+- [x] Add `ITranscriptionProvider` abstraction.
+- [x] Add mock/local transcription provider for testing.
+- [x] Add Qwen-VL provider boundary.
+- [x] Add transcription UI and correction panel.
+- [x] Persist corrected transcription text.
+- [x] Persist raw transcription text separately from corrected text.
+- [x] Add copy/clear controls for local transcription text.
+- [ ] Implement and validate real OpenCVSharp preprocessing.
+- [ ] Implement and validate real Qwen-VL provider.
+- [ ] Add transcription provider metadata and processing timestamps.
+- [ ] Add transcription failure persistence without leaking secrets.
+
+---
+
+## Phase 4: Search And Development Workflow Usefulness
+
+- [x] Add basic sidebar search over titles, filenames, notebooks, and saved transcription text.
+- [x] Add Markdown export for the current page corrected text.
+- [x] Add basic LLM-formatted clipboard handoff.
+- [ ] Add full-text search index over corrected transcriptions.
 - [ ] Add tags and project/repo association.
-- [ ] Add latest page and recent pages navigation.
-- [ ] Add keyboard shortcuts for import, save, search, and transcription.
-
----
-
-## Phase 4: Search and development workflow usefulness
-
-- [ ] Add full-text search over corrected transcriptions.
-- [ ] Search pages by title, tags, project, and transcription text.
-- [ ] Jump from search result to original page image and transcription.
-- [ ] Add developer note templates for corrected transcription output.
-- [ ] Add Markdown export.
+- [ ] Add developer note templates.
+- [ ] Add batch Markdown export.
 - [ ] Add structured handoff exports for GitHub issues, PR checklists, docs, Codex, ChatGPT, and Qwen Coder.
 
 ---
 
-## Phase 5: Annotation and canvas as secondary feature
+## Phase 5: Annotation And Canvas As Secondary Feature
 
 The drawing canvas is not the MVP driver. It can become useful later as an annotation layer over imported notebook images.
 
@@ -176,7 +168,7 @@ The drawing canvas is not the MVP driver. It can become useful later as an annot
 
 ---
 
-## Phase 6: Data durability and security
+## Phase 6: Data Durability And Security
 
 - [ ] Normalize persistence into notebooks, imported pages, page images, transcriptions, tags, and search index tables.
 - [ ] Add schema versioning and migrations.
@@ -187,12 +179,11 @@ The drawing canvas is not the MVP driver. It can become useful later as an annot
 
 ---
 
-## Phase 7: Import/export and release readiness
+## Phase 7: Import/export And Release Readiness
 
-- [ ] Import images from file picker.
-- [ ] Add camera/scanner capture flow if feasible.
-- [ ] Export original page image and corrected transcription.
-- [ ] Export Markdown and PDF bundles.
+- [ ] Export page images.
+- [ ] Export PDF pages and notebooks.
+- [ ] Import PDF/Markdown notes.
 - [ ] Replace placeholder app assets.
 - [ ] Configure MSIX packaging and signing.
 - [ ] Add release workflow, artifacts, changelog, and version tags.
@@ -200,25 +191,28 @@ The drawing canvas is not the MVP driver. It can become useful later as an annot
 
 ---
 
-## Immediate execution order
+## Immediate Execution Order
 
 1. [x] Fix CI restore failure.
 2. [x] Fix compile/build errors.
 3. [x] Flatten repository layout to root project.
-4. [ ] Confirm local Windows launch.
-5. [ ] Replace drawing-first shell with import-first page image shell.
-6. [ ] Add imported page and page image models.
-7. [ ] Import image into app-managed local storage.
-8. [ ] Save imported page metadata and local image path in SQLCipher.
-9. [ ] Reopen and load latest imported page.
-10. [ ] Add image viewer zoom/pan/fit.
-11. [ ] Add preprocessing service boundary.
-12. [ ] Add transcription provider boundary.
-13. [ ] Add transcription UI and correction panel.
-14. [ ] Persist raw/corrected transcription.
-15. [ ] Add search over corrected transcriptions.
-16. [ ] Add Markdown/export handoff.
+4. [x] Confirm local Windows launch.
+5. [x] Replace drawing-first shell with import-first page image shell.
+6. [x] Add imported page, notebook, and page image models.
+7. [x] Import image into app-managed local storage.
+8. [x] Save imported page metadata and local image path in SQLCipher.
+9. [x] Reopen and load latest imported page.
+10. [x] Add page library sidebar.
+11. [x] Add image preprocessing pipeline boundary.
+12. [x] Add transcription provider boundary.
+13. [x] Add transcription UI and correction panel.
+14. [x] Persist raw/corrected transcription.
+15. [x] Add basic sidebar search.
+16. [x] Add Markdown/export handoff.
+17. [ ] Add full notebook grouping and selection.
+18. [ ] Add full-text indexed search.
+19. [ ] Add MSIX packaging.
 
-## Working rule
+## Working Rule
 
 Every major feature should support the physical-notebook capture workflow. Do not let the drawing canvas drive architecture unless the task is explicitly about future annotations.

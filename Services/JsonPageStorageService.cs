@@ -42,8 +42,7 @@ public sealed class JsonPageStorageService : IPageStorageService
             return null;
         }
 
-        await using var stream = File.OpenRead(path);
-        return await JsonSerializer.DeserializeAsync<NotebookPage>(stream, _jsonOptions, cancellationToken);
+        return await TryLoadPageAsync(path, cancellationToken);
     }
 
     public async Task<NotebookPage?> LoadLatestPageAsync(CancellationToken cancellationToken = default)
@@ -58,9 +57,53 @@ public sealed class JsonPageStorageService : IPageStorageService
             return null;
         }
 
-        await using var stream = File.OpenRead(latestPath);
-        return await JsonSerializer.DeserializeAsync<NotebookPage>(stream, _jsonOptions, cancellationToken);
+        return await TryLoadPageAsync(latestPath, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<NotebookPage>> LoadPagesAsync(CancellationToken cancellationToken = default)
+    {
+        var pages = new List<NotebookPage>();
+        foreach (var path in Directory
+            .EnumerateFiles(_pagesDirectory, "*.json", SearchOption.TopDirectoryOnly)
+            .OrderByDescending(File.GetLastWriteTimeUtc))
+        {
+            var page = await TryLoadPageAsync(path, cancellationToken);
+            if (page is not null)
+            {
+                pages.Add(page);
+            }
+        }
+
+        return pages;
+    }
+
+    public Task DeletePageAsync(Guid pageId, CancellationToken cancellationToken = default)
+    {
+        var path = GetPagePath(pageId);
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+        }
+
+        return Task.CompletedTask;
     }
 
     private string GetPagePath(Guid pageId) => Path.Combine(_pagesDirectory, $"{pageId:N}.json");
+
+    private async Task<NotebookPage?> TryLoadPageAsync(string path, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await using var stream = File.OpenRead(path);
+            return await JsonSerializer.DeserializeAsync<NotebookPage>(stream, _jsonOptions, cancellationToken);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+        catch (NotSupportedException)
+        {
+            return null;
+        }
+    }
 }

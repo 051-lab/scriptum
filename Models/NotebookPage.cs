@@ -1,7 +1,7 @@
 namespace Scriptum.Models;
 
 /// <summary>
-/// A single notebook page made of vector ink strokes and future transcription metadata.
+/// A single page captured from a physical notebook.
 /// </summary>
 public sealed class NotebookPage
 {
@@ -12,6 +12,46 @@ public sealed class NotebookPage
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+
+    public DateTimeOffset? ImportedAt { get; set; }
+
+    public Guid? NotebookId { get; set; }
+
+    public string? NotebookTitle { get; set; }
+
+    public string? SourceImagePath { get; set; }
+
+    public string? OriginalFileName { get; set; }
+
+    public long? SourceImageBytes { get; set; }
+
+    public int? ImagePixelWidth { get; set; }
+
+    public int? ImagePixelHeight { get; set; }
+
+    public string? PreparedImagePath { get; set; }
+
+    public DateTimeOffset? PreparedAt { get; set; }
+
+    public string? PreprocessingSummary { get; set; }
+
+    public double RotationDegrees { get; set; }
+
+    public double? CropX { get; set; }
+
+    public double? CropY { get; set; }
+
+    public double? CropWidth { get; set; }
+
+    public double? CropHeight { get; set; }
+
+    public bool DeskewApplied { get; set; }
+
+    public string? TranscriptionText { get; set; }
+
+    public string? RawTranscriptionText { get; set; }
+
+    public string? CorrectedTranscriptionText { get; set; }
 
     public List<InkStroke> Strokes { get; set; } = new();
 }
