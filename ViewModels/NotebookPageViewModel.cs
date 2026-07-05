@@ -30,7 +30,10 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
     private string _correctedTranscriptionDraft = string.Empty;
 
     public NotebookPageViewModel()
-        : this(new SqlitePageStorageService(), PageImagePreprocessingServiceFactory.CreateDefault(), new MockTranscriptionProvider())
+        : this(
+            new SqlitePageStorageService(),
+            PageImagePreprocessingServiceFactory.CreateDefault(),
+            TranscriptionProviderFactory.CreateDefault())
     {
     }
 
@@ -322,7 +325,7 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
             CurrentPage.UpdatedAt = DateTimeOffset.UtcNow;
             await _storageService.SavePageAsync(CurrentPage, cancellationToken);
             SyncEditableFieldsFromCurrentPage();
-            StatusMessage = $"Generated mock raw transcription with {result.ProviderName}.";
+            StatusMessage = $"Generated raw transcription with {result.ProviderName}.";
             NotifyPageStateChanged();
         }
         catch (Exception ex)

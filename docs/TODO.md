@@ -133,7 +133,8 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [ ] Implement and validate real OpenCVSharp preprocessing.
 - [x] Add `ITranscriptionProvider` abstraction.
 - [x] Add mock/local transcription provider for testing.
-- [ ] Add Qwen-VL provider boundary.
+- [x] Add Qwen-VL provider boundary.
+- [ ] Implement and validate real Qwen-VL provider.
 - [x] Add transcription UI and correction panel.
 - [x] Persist corrected transcription text.
 - [x] Persist raw transcription text separately from corrected text.
