@@ -38,7 +38,37 @@ public sealed partial class NotebookPageView : UserControl
         UpdatePageStateOverlays();
     }
 
+    public async Task ImportPageAsync()
+    {
+        await PickAndImportPageAsync();
+    }
+
+    public async Task SavePageAsync()
+    {
+        await ViewModel.SaveTextEditsAsync();
+        PageLibraryChanged?.Invoke(this, EventArgs.Empty);
+        Bindings.Update();
+        UpdatePageStateOverlays();
+    }
+
+    public async Task LoadLatestPageAsync()
+    {
+        await ViewModel.LoadLatestAsync();
+        PageLibraryChanged?.Invoke(this, EventArgs.Empty);
+        UpdatePageStateOverlays();
+    }
+
+    public async Task TranscribePageAsync()
+    {
+        await RunTranscriptionAsync();
+    }
+
     private async void ImportImageButton_Click(object sender, RoutedEventArgs e)
+    {
+        await PickAndImportPageAsync();
+    }
+
+    private async Task PickAndImportPageAsync()
     {
         var picker = new FileOpenPicker
         {
@@ -76,18 +106,12 @@ public sealed partial class NotebookPageView : UserControl
 
     private async void SaveButton_Click(object sender, RoutedEventArgs e)
     {
-        await ViewModel.SaveTextEditsAsync();
-        PageLibraryChanged?.Invoke(this, EventArgs.Empty);
-        Bindings.Update();
-        UpdatePageStateOverlays();
+        await SavePageAsync();
     }
 
     private async void SaveCorrectionButton_Click(object sender, RoutedEventArgs e)
     {
-        await ViewModel.SaveTextEditsAsync();
-        PageLibraryChanged?.Invoke(this, EventArgs.Empty);
-        Bindings.Update();
-        UpdatePageStateOverlays();
+        await SavePageAsync();
     }
 
     private void CopyTextButton_Click(object sender, RoutedEventArgs e)
@@ -123,19 +147,17 @@ public sealed partial class NotebookPageView : UserControl
 
     private async void LoadLatestButton_Click(object sender, RoutedEventArgs e)
     {
-        await ViewModel.LoadLatestAsync();
-        PageLibraryChanged?.Invoke(this, EventArgs.Empty);
-        UpdatePageStateOverlays();
+        await LoadLatestPageAsync();
     }
 
     private async void PrepareTranscriptionButton_Click(object sender, RoutedEventArgs e)
     {
-        await RunTranscriptionAsync();
+        await TranscribePageAsync();
     }
 
     private async void TranscribeButton_Click(object sender, RoutedEventArgs e)
     {
-        await RunTranscriptionAsync();
+        await TranscribePageAsync();
     }
 
     private void FitPageButton_Click(object sender, RoutedEventArgs e)

@@ -112,7 +112,8 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [ ] Add basic image crop workflow for photographed notebook pages.
 - [ ] Add page title editing.
 - [ ] Add delete behavior with confirmation.
-- [ ] Add keyboard shortcuts: Import, Save, New Page, Delete.
+- [x] Add keyboard shortcuts: Import, Save, Load Latest, Delete, Transcribe.
+- [ ] Add New Page command and shortcut.
 
 ---
 

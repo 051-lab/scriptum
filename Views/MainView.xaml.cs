@@ -1,4 +1,6 @@
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using Scriptum.ViewModels;
 
 namespace Scriptum.Views;
@@ -62,6 +64,50 @@ public sealed partial class MainView : Page
 
     private async void DeleteSelectedPage_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
+        await DeleteSelectedPageWithConfirmationAsync();
+    }
+
+    private async void ImportPageKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        await NotebookPageSurface.ImportPageAsync();
+        Bindings.Update();
+    }
+
+    private async void SavePageKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        await NotebookPageSurface.SavePageAsync();
+        Bindings.Update();
+    }
+
+    private async void LoadLatestKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        await NotebookPageSurface.LoadLatestPageAsync();
+        Bindings.Update();
+    }
+
+    private async void TranscribePageKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        await NotebookPageSurface.TranscribePageAsync();
+        Bindings.Update();
+    }
+
+    private async void DeleteSelectedPageKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        if (IsTextInputFocused())
+        {
+            return;
+        }
+
+        args.Handled = true;
+        await DeleteSelectedPageWithConfirmationAsync();
+    }
+
+    private async Task DeleteSelectedPageWithConfirmationAsync()
+    {
         if (ViewModel.SelectedPage is null)
         {
             return;
@@ -86,5 +132,11 @@ public sealed partial class MainView : Page
         await ViewModel.DeleteSelectedPageAsync();
         NotebookPageSurface.RefreshView();
         Bindings.Update();
+    }
+
+    private static bool IsTextInputFocused()
+    {
+        var focusedElement = FocusManager.GetFocusedElement();
+        return focusedElement is TextBox or PasswordBox or RichEditBox;
     }
 }

@@ -6,6 +6,24 @@
     xmlns:viewModels="using:Scriptum.ViewModels"
     Loaded="Page_Loaded">
 
+    <Page.KeyboardAccelerators>
+        <KeyboardAccelerator Key="O"
+                             Modifiers="Control"
+                             Invoked="ImportPageKeyboardAccelerator_Invoked" />
+        <KeyboardAccelerator Key="S"
+                             Modifiers="Control"
+                             Invoked="SavePageKeyboardAccelerator_Invoked" />
+        <KeyboardAccelerator Key="L"
+                             Modifiers="Control"
+                             Invoked="LoadLatestKeyboardAccelerator_Invoked" />
+        <KeyboardAccelerator Key="T"
+                             Modifiers="Control"
+                             Invoked="TranscribePageKeyboardAccelerator_Invoked" />
+        <KeyboardAccelerator Key="Delete"
+                             Modifiers="Control"
+                             Invoked="DeleteSelectedPageKeyboardAccelerator_Invoked" />
+    </Page.KeyboardAccelerators>
+
     <Grid Background="#151515">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="280" />
