@@ -1,6 +1,6 @@
 # Scriptum Prioritized Development Todo
 
-_Last updated: 2026-07-02_
+_Last updated: 2026-07-05_
 
 Scriptum is now in the **capture-first notebook archive MVP** stage. CI restore and CI build are green. The product direction is to capture or import handwritten notes from physical notebooks, preserve the original page image, and convert those notes into searchable digital text. The drawing-first prototype has been replaced by an import-first notebook page shell.
 
@@ -41,11 +41,11 @@ Scriptum is now in the **capture-first notebook archive MVP** stage. CI restore 
 
 ### P0.4 Clean project structure
 
-- [ ] Confirm `Scriptum.sln` works locally.
-- [ ] Confirm `.gitignore` covers build artifacts, packages, logs, user files, and secrets.
-- [ ] Confirm folders are organized around `Models`, `ViewModels`, `Views`, `Services`, `Data`, `Assets`, and `docs`.
-- [ ] Add local development setup instructions to the README.
-- [ ] Reduce duplicate GitHub Actions notifications by running CI on PRs and `main` only.
+- [x] Confirm `Scriptum.sln` works locally.
+- [x] Confirm `.gitignore` covers build artifacts, packages, logs, user files, and secrets.
+- [x] Confirm folders are organized around `Models`, `ViewModels`, `Views`, `Services`, `Data`, `Assets`, and `docs`.
+- [x] Add local development setup instructions to the README.
+- [x] Reduce duplicate GitHub Actions notifications by running CI on PRs and `main` only.
 
 ---
 
@@ -85,9 +85,9 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 
 ### P1.4 Add basic page lifecycle
 
-- [ ] Add New Page command.
+- [x] Add New Page command.
 - [x] Add page title field.
-- [ ] Add rename behavior.
+- [x] Add rename behavior.
 - [x] Add delete behavior with confirmation.
 - [ ] Add updated timestamp display.
 - [ ] Add dirty-state tracking.
@@ -110,8 +110,8 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [ ] Add import queue or recent imports list.
 - [x] Add basic image rotation workflow for photographed notebook pages.
 - [ ] Add basic image crop workflow for photographed notebook pages.
-- [ ] Add page title editing.
-- [ ] Add delete behavior with confirmation.
+- [x] Add page title editing.
+- [x] Add delete behavior with confirmation.
 - [x] Add keyboard shortcuts: Import, Save, Load Latest, Delete, Transcribe.
 - [x] Add New Page command and shortcut.
 
@@ -189,7 +189,7 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 7. [x] Add multiple imported pages to the local page library.
 8. [x] Add sidebar page navigation.
 9. [ ] Add notebook model.
-10. [ ] Add image preprocessing pipeline.
+10. [x] Add image preprocessing pipeline.
 11. [x] Add transcription provider boundary.
 12. [x] Add transcription UI.
 13. [ ] Add search.

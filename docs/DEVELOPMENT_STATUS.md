@@ -1,6 +1,6 @@
 # Scriptum Development Status
 
-_Last updated: 2026-07-02_
+_Last updated: 2026-07-05_
 
 ## Current stage
 
@@ -55,13 +55,14 @@ A usable MVP should allow someone to:
 - Select prior pages from the sidebar. — complete
 - Add page title editing. — complete
 - Add corrected text editing. — complete
-- Add delete behavior and richer metadata display.
+- Add delete behavior. — complete
+- Add richer metadata display.
 
 ### Milestone 2: Imported page persistence
 
 - Normalize imported page, page image, and transcription records.
 - Add schema versioning/migrations.
-- Add corrupt-payload and missing-image handling.
+- Add corrupt-payload and missing-image handling. — complete
 
 ### Milestone 3: Transcription MVP
 
