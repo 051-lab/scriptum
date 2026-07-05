@@ -30,7 +30,7 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
     private string _correctedTranscriptionDraft = string.Empty;
 
     public NotebookPageViewModel()
-        : this(new SqlitePageStorageService(), new NoOpPageImagePreprocessingService(), new MockTranscriptionProvider())
+        : this(new SqlitePageStorageService(), PageImagePreprocessingServiceFactory.CreateDefault(), new MockTranscriptionProvider())
     {
     }
 

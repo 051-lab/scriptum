@@ -129,7 +129,8 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [x] Prepare imported page image for OCR/transcription.
 - [x] Add preprocessing service boundary.
 - [x] Add prepared-image storage path and transform metadata placeholders.
-- [ ] Add OpenCVSharp adapter or equivalent preprocessing adapter.
+- [x] Add disabled OpenCVSharp adapter shell or equivalent preprocessing adapter.
+- [ ] Implement and validate real OpenCVSharp preprocessing.
 - [x] Add `ITranscriptionProvider` abstraction.
 - [x] Add mock/local transcription provider for testing.
 - [ ] Add Qwen-VL provider boundary.
