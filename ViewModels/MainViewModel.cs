@@ -178,6 +178,7 @@ public partial class MainViewModel : ViewModelBase
         var page = await _storageService.LoadPageAsync(pageId, cancellationToken);
         await _storageService.DeletePageAsync(pageId, cancellationToken);
         TryDeleteImportedImage(page?.SourceImagePath);
+        TryDeletePreparedImage(page?.PreparedImagePath);
 
         SelectedPage = null;
         await RefreshImportedPagesAsync(cancellationToken);
@@ -213,6 +214,31 @@ public partial class MainViewModel : ViewModelBase
         catch
         {
             // The database record is the source of truth; image cleanup can be retried later.
+        }
+    }
+
+    private void TryDeletePreparedImage(string? preparedImagePath)
+    {
+        if (string.IsNullOrWhiteSpace(preparedImagePath) || !File.Exists(preparedImagePath))
+        {
+            return;
+        }
+
+        try
+        {
+            var preparedRoot = Path.GetFullPath(Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "Scriptum",
+                "PreparedPages"));
+            var imagePath = Path.GetFullPath(preparedImagePath);
+            if (imagePath.StartsWith(preparedRoot, StringComparison.OrdinalIgnoreCase))
+            {
+                File.Delete(imagePath);
+            }
+        }
+        catch
+        {
+            // Prepared images can be regenerated from the imported source image.
         }
     }
 }

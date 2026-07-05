@@ -25,6 +25,24 @@ public sealed class NotebookPage
 
     public int? ImagePixelHeight { get; set; }
 
+    public string? PreparedImagePath { get; set; }
+
+    public DateTimeOffset? PreparedAt { get; set; }
+
+    public string? PreprocessingSummary { get; set; }
+
+    public double RotationDegrees { get; set; }
+
+    public double? CropX { get; set; }
+
+    public double? CropY { get; set; }
+
+    public double? CropWidth { get; set; }
+
+    public double? CropHeight { get; set; }
+
+    public bool DeskewApplied { get; set; }
+
     public string? TranscriptionText { get; set; }
 
     public string? RawTranscriptionText { get; set; }

@@ -309,6 +309,8 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
             OnPropertyChanged(nameof(StatusMessage));
 
             var preprocessingResult = await _preprocessingService.PrepareAsync(CurrentPage, cancellationToken);
+            ApplyPreprocessingResult(preprocessingResult);
+
             var result = await _transcriptionProvider.TranscribeAsync(CurrentPage, preprocessingResult, cancellationToken);
             CurrentPage.RawTranscriptionText = result.RawText;
             if (string.IsNullOrWhiteSpace(CurrentPage.CorrectedTranscriptionText)
@@ -441,6 +443,19 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         OnPropertyChanged(nameof(CorrectedTranscriptionText));
         OnPropertyChanged(nameof(EditablePageTitle));
         OnPropertyChanged(nameof(CorrectedTranscriptionDraft));
+    }
+
+    private void ApplyPreprocessingResult(PageImagePreprocessingResult result)
+    {
+        CurrentPage.PreparedImagePath = result.PreparedImagePath;
+        CurrentPage.PreparedAt = result.PreparedAt;
+        CurrentPage.PreprocessingSummary = result.Summary;
+        CurrentPage.RotationDegrees = result.RotationDegrees;
+        CurrentPage.CropX = result.CropX;
+        CurrentPage.CropY = result.CropY;
+        CurrentPage.CropWidth = result.CropWidth;
+        CurrentPage.CropHeight = result.CropHeight;
+        CurrentPage.DeskewApplied = result.DeskewApplied;
     }
 
     private void SyncEditableFieldsFromCurrentPage()
