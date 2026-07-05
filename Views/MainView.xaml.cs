@@ -59,4 +59,32 @@ public sealed partial class MainView : Page
         NotebookPageSurface.RefreshView();
         Bindings.Update();
     }
+
+    private async void DeleteSelectedPage_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (ViewModel.SelectedPage is null)
+        {
+            return;
+        }
+
+        var dialog = new ContentDialog
+        {
+            Title = "Delete imported page?",
+            Content = "This removes the selected page from the local archive and deletes its copied image from Scriptum storage.",
+            PrimaryButtonText = "Delete",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Close,
+            XamlRoot = XamlRoot
+        };
+
+        var result = await dialog.ShowAsync();
+        if (result != ContentDialogResult.Primary)
+        {
+            return;
+        }
+
+        await ViewModel.DeleteSelectedPageAsync();
+        NotebookPageSurface.RefreshView();
+        Bindings.Update();
+    }
 }

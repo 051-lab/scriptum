@@ -11,6 +11,7 @@ namespace Scriptum.ViewModels;
 public partial class MainViewModel : ViewModelBase
 {
     private readonly IPageStorageService _storageService;
+    private readonly string _importDirectory;
 
     [ObservableProperty]
     private string _applicationTitle = "Scriptum";
@@ -29,6 +30,10 @@ public partial class MainViewModel : ViewModelBase
     public MainViewModel(IPageStorageService storageService)
     {
         _storageService = storageService;
+        _importDirectory = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "Scriptum",
+            "ImportedPages");
         NotebookPage = new NotebookPageViewModel(_storageService);
     }
 
@@ -105,5 +110,54 @@ public partial class MainViewModel : ViewModelBase
         SelectedPage = ImportedPages.FirstOrDefault(page => page.Id == selectedPageId)
             ?? ImportedPages.FirstOrDefault();
         OnPropertyChanged(nameof(HasImportedPages));
+    }
+
+    public async Task<bool> DeleteSelectedPageAsync(CancellationToken cancellationToken = default)
+    {
+        if (SelectedPage is null)
+        {
+            return false;
+        }
+
+        var pageId = SelectedPage.Id;
+        var page = await _storageService.LoadPageAsync(pageId, cancellationToken);
+        await _storageService.DeletePageAsync(pageId, cancellationToken);
+        TryDeleteImportedImage(page?.SourceImagePath);
+
+        SelectedPage = null;
+        await RefreshImportedPagesAsync(cancellationToken);
+
+        if (SelectedPage is not null)
+        {
+            await SelectPageAsync(SelectedPage, cancellationToken);
+        }
+        else
+        {
+            NotebookPage.ResetPage();
+        }
+
+        return true;
+    }
+
+    private void TryDeleteImportedImage(string? sourceImagePath)
+    {
+        if (string.IsNullOrWhiteSpace(sourceImagePath) || !File.Exists(sourceImagePath))
+        {
+            return;
+        }
+
+        try
+        {
+            var importRoot = Path.GetFullPath(_importDirectory);
+            var imagePath = Path.GetFullPath(sourceImagePath);
+            if (imagePath.StartsWith(importRoot, StringComparison.OrdinalIgnoreCase))
+            {
+                File.Delete(imagePath);
+            }
+        }
+        catch
+        {
+            // The database record is the source of truth; image cleanup can be retried later.
+        }
     }
 }

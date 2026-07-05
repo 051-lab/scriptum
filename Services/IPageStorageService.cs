@@ -14,4 +14,6 @@ public interface IPageStorageService
     Task<NotebookPage?> LoadLatestPageAsync(CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<NotebookPage>> LoadPagesAsync(CancellationToken cancellationToken = default);
+
+    Task DeletePageAsync(Guid pageId, CancellationToken cancellationToken = default);
 }

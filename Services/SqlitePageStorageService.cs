@@ -123,6 +123,20 @@ public sealed class SqlitePageStorageService : IPageStorageService, IDisposable
         return pages;
     }
 
+    public async Task DeletePageAsync(Guid pageId, CancellationToken cancellationToken = default)
+    {
+        await EnsureInitializedAsync(cancellationToken);
+
+        using var command = _databaseContext.Connection.CreateCommand();
+        command.CommandText = """
+            DELETE FROM notebook_pages
+            WHERE id = $id;
+            """;
+        command.Parameters.AddWithValue("$id", pageId.ToString("N"));
+
+        await command.ExecuteNonQueryAsync(cancellationToken);
+    }
+
     public void Dispose()
     {
         if (_disposed)

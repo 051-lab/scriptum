@@ -80,5 +80,16 @@ public sealed class JsonPageStorageService : IPageStorageService
         return pages;
     }
 
+    public Task DeletePageAsync(Guid pageId, CancellationToken cancellationToken = default)
+    {
+        var path = GetPagePath(pageId);
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+        }
+
+        return Task.CompletedTask;
+    }
+
     private string GetPagePath(Guid pageId) => Path.Combine(_pagesDirectory, $"{pageId:N}.json");
 }

@@ -273,6 +273,19 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         }
     }
 
+    public void ResetPage()
+    {
+        CurrentPage = new NotebookPage
+        {
+            Title = "Untitled notebook page"
+        };
+        PageImage = null;
+        SyncEditableFieldsFromCurrentPage();
+        StatusMessage = "Import a photo or scan from your physical notebook.";
+        NotifyPageStateChanged();
+        OnPropertyChanged(nameof(CurrentPage));
+    }
+
     public async Task TranscribeAsync(CancellationToken cancellationToken = default)
     {
         if (!HasImportedImage)

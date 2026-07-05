@@ -87,7 +87,7 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [ ] Add New Page command.
 - [x] Add page title field.
 - [ ] Add rename behavior.
-- [ ] Add delete behavior with confirmation.
+- [x] Add delete behavior with confirmation.
 - [ ] Add updated timestamp display.
 - [ ] Add dirty-state tracking.
 - [x] Add save status/confirmation.

@@ -86,6 +86,9 @@
                                    TextWrapping="Wrap"
                                    Foreground="#81796C"
                                    FontSize="12" />
+                        <Button Content="Delete Selected"
+                                Click="DeleteSelectedPage_Click"
+                                HorizontalAlignment="Stretch" />
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Spacing="10">
