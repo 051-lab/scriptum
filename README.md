@@ -45,4 +45,19 @@ The local database is created on first save at:
 %LOCALAPPDATA%\Scriptum\scriptum.db
 ```
 
+### Optional Qwen vision transcription
+
+By default, Scriptum uses a mock transcription provider so local development does not require network credentials. To test real handwriting transcription with an OpenAI-compatible Qwen vision endpoint, set these variables in Windows PowerShell before launching:
+
+```powershell
+$env:SCRIPTUM_TRANSCRIPTION_PROVIDER = "qwen"
+$env:SCRIPTUM_QWEN_ENDPOINT = "https://your-qwen-compatible-host/v1"
+$env:SCRIPTUM_QWEN_MODEL = "your-image-capable-qwen-model"
+$env:QWEN_API_KEY = "your-api-key"
+
+dotnet run --project Scriptum.csproj --configuration Release -p:Platform=x64
+```
+
+`SCRIPTUM_QWEN_ENDPOINT` can be either a base `/v1` URL or a full `/chat/completions` URL. The app sends the prepared notebook page image to the provider and saves the returned text as the page's raw transcription.
+
 WSL can be useful for Git and text editing, but WinUI 3 launch and manual UI testing should be run from the Windows desktop session so the app can create a real window and receive mouse, pen, or touch input.

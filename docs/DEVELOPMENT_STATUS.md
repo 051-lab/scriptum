@@ -17,7 +17,7 @@ The product direction is no longer an in-app handwriting canvas. Scriptum is for
 | Page import | Early MVP | Image import copies supported files into local app storage, displays the imported page, and supports saved 90-degree orientation changes. |
 | Local persistence | Early MVP | SQLCipher-backed page payload storage saves imported page metadata, lists imported pages, loads selected pages, skips unreadable payloads, and shows missing-image recovery states. |
 | Build/local launch | Working locally | Restore and Release x64 build pass locally; the app launches from Windows. |
-| Transcription workspace | Early MVP | Prepared-image storage, no-op preprocessing, disabled OpenCV preprocessing shell, and disabled Qwen vision provider shell feed a mock provider by default; corrected text can be edited, copied, cleared, and saved; real AI/OCR provider work remains future scope. |
+| Transcription workspace | Early MVP | Prepared-image storage, no-op preprocessing, disabled OpenCV preprocessing shell, mock provider, and OpenAI-compatible Qwen vision client are wired behind the provider boundary; corrected text can be edited, copied, cleared, and saved; live Qwen validation needs endpoint/API-key configuration. |
 | Notebook management | Early MVP | Sidebar page list/search with SQLCipher FTS fallback, persisted notebook creation/selection/rename, page filtering and move-to-notebook, title refresh, updated timestamp display, unsaved text-edit state with discard guard, new-page reset, confirmed delete, and core keyboard shortcuts work for imported pages; tags are still missing. |
 | Export/import | Early MVP | Current-page Markdown export and basic LLM-formatted clipboard handoff work for corrected text; PDF/image export and backup/restore flows are still missing. |
 | Packaging/release | Not started | App icons, MSIX signing, installer/release pipeline, and versioning still need work. |
@@ -41,8 +41,8 @@ A usable MVP should allow someone to:
 1. **Normalized persistence**
    Current storage saves a whole page payload. Later versions should split notebooks, imported pages, page images, transcription records, tags, and search indexes into separate persisted entities.
 
-2. **Real transcription provider**
-   The transcription workspace has a mock provider and a disabled Qwen vision provider shell, but OCR/preprocessing and real AI provider integration still need implementation.
+2. **Live transcription validation**
+   The transcription workspace has a mock provider and a Qwen-compatible vision client, but live OCR/vision validation requires an endpoint, image-capable model, and API key.
 
 3. **Production security**
    `SCRIPTUM_DATABASE_KEY` is better than an inline-only key, but a production app needs a secure key-management layer.
@@ -74,7 +74,8 @@ A usable MVP should allow someone to:
 - Add `ITranscriptionProvider`. — complete
 - Add mock transcription provider for UI testing. — complete
 - Add disabled Qwen or other vision-model provider shell. — complete
-- Implement a real Qwen or other vision-model provider.
+- Implement a real Qwen or other vision-model provider. — complete
+- Validate live Qwen transcription with a real endpoint/API key.
 - Store raw and corrected transcription text.
 
 ### Milestone 4: Useful personal notebook

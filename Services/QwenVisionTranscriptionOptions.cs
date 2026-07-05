@@ -9,4 +9,6 @@ public sealed class QwenVisionTranscriptionOptions
     public string? Endpoint { get; set; }
 
     public string ApiKeyEnvironmentVariable { get; set; } = "QWEN_API_KEY";
+
+    public int MaxOutputTokens { get; set; } = 4096;
 }

@@ -138,7 +138,8 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [x] Persist raw transcription text separately from corrected text.
 - [x] Add copy/clear controls for local transcription text.
 - [ ] Implement and validate real OpenCVSharp preprocessing.
-- [ ] Implement and validate real Qwen-VL provider.
+- [x] Implement real OpenAI-compatible Qwen vision provider.
+- [ ] Validate real Qwen-VL provider with endpoint/API-key configuration.
 - [ ] Add transcription provider metadata and processing timestamps.
 - [ ] Add transcription failure persistence without leaking secrets.
 
