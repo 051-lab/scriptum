@@ -91,6 +91,7 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [x] Add delete behavior with confirmation.
 - [x] Add updated timestamp display.
 - [x] Add dirty-state tracking.
+- [x] Add unsaved-edit guard before page switching/reset actions.
 - [x] Add save status/confirmation.
 
 ### P1.5 Add notebook model

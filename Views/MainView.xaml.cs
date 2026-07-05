@@ -13,6 +13,7 @@ public sealed partial class MainView : Page
     public MainViewModel ViewModel { get; } = new();
     private bool _initialized;
     private bool _selectingPage;
+    private ImportedPageListItemViewModel? _lastConfirmedSelectedPage;
 
     public MainView()
     {
@@ -21,6 +22,8 @@ public sealed partial class MainView : Page
         NotebookPageSurface.SetViewModel(ViewModel.NotebookPage);
         NotebookPageSurface.PageLibraryChanged += NotebookPageSurface_PageLibraryChanged;
         NotebookPageSurface.NewPageRequested += NotebookPageSurface_NewPageRequested;
+        NotebookPageSurface.ImportPageRequested += NotebookPageSurface_ImportPageRequested;
+        NotebookPageSurface.LoadLatestPageRequested += NotebookPageSurface_LoadLatestPageRequested;
     }
 
     private async void Page_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
@@ -32,6 +35,7 @@ public sealed partial class MainView : Page
 
         _initialized = true;
         await ViewModel.InitializeAsync();
+        _lastConfirmedSelectedPage = ViewModel.SelectedPage;
         NotebookPageSurface.RefreshView();
         Bindings.Update();
     }
@@ -46,7 +50,21 @@ public sealed partial class MainView : Page
         _selectingPage = true;
         try
         {
-            await ViewModel.SelectPageAsync(ViewModel.SelectedPage);
+            var requestedPage = ViewModel.SelectedPage;
+            if (requestedPage?.Id == _lastConfirmedSelectedPage?.Id)
+            {
+                return;
+            }
+
+            if (!await ConfirmDiscardUnsavedTextEditsAsync())
+            {
+                ViewModel.SelectedPage = _lastConfirmedSelectedPage;
+                Bindings.Update();
+                return;
+            }
+
+            await ViewModel.SelectPageAsync(requestedPage);
+            _lastConfirmedSelectedPage = ViewModel.SelectedPage;
             NotebookPageSurface.RefreshView();
             Bindings.Update();
         }
@@ -59,6 +77,7 @@ public sealed partial class MainView : Page
     private async void NotebookPageSurface_PageLibraryChanged(object? sender, EventArgs e)
     {
         await ViewModel.RefreshCurrentPageListItemAsync();
+        _lastConfirmedSelectedPage = ViewModel.SelectedPage;
         NotebookPageSurface.RefreshView();
         Bindings.Update();
     }
@@ -66,6 +85,16 @@ public sealed partial class MainView : Page
     private async void NotebookPageSurface_NewPageRequested(object? sender, EventArgs e)
     {
         await NewPageAsync();
+    }
+
+    private async void NotebookPageSurface_ImportPageRequested(object? sender, EventArgs e)
+    {
+        await ImportPageAsync();
+    }
+
+    private async void NotebookPageSurface_LoadLatestPageRequested(object? sender, EventArgs e)
+    {
+        await LoadLatestPageAsync();
     }
 
     private async void DeleteSelectedPage_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
@@ -82,7 +111,7 @@ public sealed partial class MainView : Page
     private async void ImportPageKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
         args.Handled = true;
-        await NotebookPageSurface.ImportPageAsync();
+        await ImportPageAsync();
         Bindings.Update();
     }
 
@@ -96,7 +125,7 @@ public sealed partial class MainView : Page
     private async void LoadLatestKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
         args.Handled = true;
-        await NotebookPageSurface.LoadLatestPageAsync();
+        await LoadLatestPageAsync();
         Bindings.Update();
     }
 
@@ -125,6 +154,11 @@ public sealed partial class MainView : Page
             return;
         }
 
+        if (!await ConfirmDiscardUnsavedTextEditsAsync())
+        {
+            return;
+        }
+
         var dialog = new ContentDialog
         {
             Title = "Delete imported page?",
@@ -142,15 +176,68 @@ public sealed partial class MainView : Page
         }
 
         await ViewModel.DeleteSelectedPageAsync();
+        _lastConfirmedSelectedPage = ViewModel.SelectedPage;
         NotebookPageSurface.RefreshView();
         Bindings.Update();
     }
 
     private async Task NewPageAsync()
     {
+        if (!await ConfirmDiscardUnsavedTextEditsAsync())
+        {
+            return;
+        }
+
         await ViewModel.NewPageAsync();
+        _lastConfirmedSelectedPage = null;
         NotebookPageSurface.RefreshView();
         Bindings.Update();
+    }
+
+    private async Task ImportPageAsync()
+    {
+        if (!await ConfirmDiscardUnsavedTextEditsAsync())
+        {
+            return;
+        }
+
+        await NotebookPageSurface.ImportPageAsync();
+        _lastConfirmedSelectedPage = ViewModel.SelectedPage;
+        NotebookPageSurface.RefreshView();
+        Bindings.Update();
+    }
+
+    private async Task LoadLatestPageAsync()
+    {
+        if (!await ConfirmDiscardUnsavedTextEditsAsync())
+        {
+            return;
+        }
+
+        await NotebookPageSurface.LoadLatestPageAsync();
+        _lastConfirmedSelectedPage = ViewModel.SelectedPage;
+        NotebookPageSurface.RefreshView();
+        Bindings.Update();
+    }
+
+    private async Task<bool> ConfirmDiscardUnsavedTextEditsAsync()
+    {
+        if (!ViewModel.NotebookPage.HasUnsavedTextEdits)
+        {
+            return true;
+        }
+
+        var dialog = new ContentDialog
+        {
+            Title = "Discard unsaved edits?",
+            Content = "The current page has unsaved title or corrected-text edits. Save them before switching pages, or discard them to continue.",
+            PrimaryButtonText = "Discard",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Close,
+            XamlRoot = XamlRoot
+        };
+
+        return await dialog.ShowAsync() == ContentDialogResult.Primary;
     }
 
     private static bool IsTextInputFocused()

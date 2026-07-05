@@ -17,6 +17,10 @@ public sealed partial class NotebookPageView : UserControl
 
     public event EventHandler? NewPageRequested;
 
+    public event EventHandler? ImportPageRequested;
+
+    public event EventHandler? LoadLatestPageRequested;
+
     public NotebookPageViewModel ViewModel { get; private set; } = new();
 
     public NotebookPageView()
@@ -85,6 +89,12 @@ public sealed partial class NotebookPageView : UserControl
 
     private async void ImportImageButton_Click(object sender, RoutedEventArgs e)
     {
+        if (ImportPageRequested is not null)
+        {
+            ImportPageRequested.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
         await PickAndImportPageAsync();
     }
 
@@ -167,6 +177,12 @@ public sealed partial class NotebookPageView : UserControl
 
     private async void LoadLatestButton_Click(object sender, RoutedEventArgs e)
     {
+        if (LoadLatestPageRequested is not null)
+        {
+            LoadLatestPageRequested.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
         await LoadLatestPageAsync();
     }
 
