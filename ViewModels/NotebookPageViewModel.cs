@@ -151,6 +151,8 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
 
     public bool CanExportMarkdown => HasImportedImage && !string.IsNullOrWhiteSpace(GetCorrectedTextForExport());
 
+    public bool CanFormatForLlm => HasImportedImage && !string.IsNullOrWhiteSpace(GetCorrectedTextForExport());
+
     public string MarkdownExportFileName => $"{GetSafeFileName(PageTitle)}.md";
 
     public string CorrectedTranscriptionDraft
@@ -553,6 +555,44 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         OnPropertyChanged(nameof(StatusMessage));
     }
 
+    public string? BuildLlmFormattedText()
+    {
+        var correctedText = GetCorrectedTextForExport();
+        if (!HasImportedImage || string.IsNullOrWhiteSpace(correctedText))
+        {
+            StatusMessage = "There is no corrected text to format for an LLM.";
+            OnPropertyChanged(nameof(StatusMessage));
+            return null;
+        }
+
+        var sourceImage = string.IsNullOrWhiteSpace(CurrentPage.OriginalFileName)
+            ? "Unknown"
+            : CurrentPage.OriginalFileName;
+        var imported = CurrentPage.ImportedAt?.ToLocalTime().ToString("f") ?? "Not imported";
+
+        return $"""
+            Use the following notes from my physical notebook as source context.
+
+            Page:
+            - Title: {PageTitle}
+            - Notebook: {NotebookLabel}
+            - Source image: {sourceImage}
+            - Imported: {imported}
+            - Updated: {UpdatedDateLabel}
+
+            Notes:
+            {correctedText}
+
+            Please preserve the intent of the notes, call out unclear assumptions, and help turn them into an actionable next step.
+            """;
+    }
+
+    public void MarkLlmFormattedTextCopied()
+    {
+        StatusMessage = "Copied LLM-formatted notes to clipboard.";
+        OnPropertyChanged(nameof(StatusMessage));
+    }
+
     private void NotifyPageStateChanged()
     {
         OnPropertyChanged(nameof(StatusMessage));
@@ -576,6 +616,7 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         OnPropertyChanged(nameof(TextEditStateLabel));
         OnPropertyChanged(nameof(SaveButtonLabel));
         OnPropertyChanged(nameof(CanExportMarkdown));
+        OnPropertyChanged(nameof(CanFormatForLlm));
         OnPropertyChanged(nameof(MarkdownExportFileName));
         OnPropertyChanged(nameof(RawTranscriptionText));
         OnPropertyChanged(nameof(CorrectedTranscriptionText));
@@ -589,6 +630,7 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         OnPropertyChanged(nameof(TextEditStateLabel));
         OnPropertyChanged(nameof(SaveButtonLabel));
         OnPropertyChanged(nameof(CanExportMarkdown));
+        OnPropertyChanged(nameof(CanFormatForLlm));
         OnPropertyChanged(nameof(MarkdownExportFileName));
         OnPropertyChanged(nameof(PageStatusLabel));
     }

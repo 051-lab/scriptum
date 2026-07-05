@@ -162,6 +162,22 @@ public sealed partial class NotebookPageView : UserControl
         Bindings.Update();
     }
 
+    private void FormatForLlmButton_Click(object sender, RoutedEventArgs e)
+    {
+        var formattedText = ViewModel.BuildLlmFormattedText();
+        if (formattedText is null)
+        {
+            Bindings.Update();
+            return;
+        }
+
+        var package = new DataPackage();
+        package.SetText(formattedText);
+        Clipboard.SetContent(package);
+        ViewModel.MarkLlmFormattedTextCopied();
+        Bindings.Update();
+    }
+
     private async void ClearRawButton_Click(object sender, RoutedEventArgs e)
     {
         await ViewModel.ClearRawTranscriptionAsync();

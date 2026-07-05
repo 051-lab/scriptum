@@ -19,7 +19,7 @@ The product direction is no longer an in-app handwriting canvas. Scriptum is for
 | Build/local launch | Working locally | Restore and Release x64 build pass locally; the app launches from Windows. |
 | Transcription workspace | Early MVP | Prepared-image storage, no-op preprocessing, disabled OpenCV preprocessing shell, and disabled Qwen vision provider shell feed a mock provider by default; corrected text can be edited, copied, cleared, and saved; real AI/OCR provider work remains future scope. |
 | Notebook management | Early MVP | Sidebar page list/search, default notebook model, selection preservation, title refresh, updated timestamp display, unsaved text-edit state with discard guard, new-page reset, confirmed delete, and core keyboard shortcuts work for imported pages; full notebook grouping and tags are still missing. |
-| Export/import | Early MVP | Current-page Markdown export works for corrected text; PDF/image export and backup/restore flows are still missing. |
+| Export/import | Early MVP | Current-page Markdown export and basic LLM-formatted clipboard handoff work for corrected text; PDF/image export and backup/restore flows are still missing. |
 | Packaging/release | Not started | App icons, MSIX signing, installer/release pipeline, and versioning still need work. |
 
 ## Usable MVP target
@@ -82,5 +82,6 @@ A usable MVP should allow someone to:
 - Full-text indexed transcription search.
 - Add tags and project metadata.
 - Export current page Markdown. — complete
+- Basic LLM-formatted clipboard handoff. — complete
 - Export PDF/images.
 - Add backup/import/export.

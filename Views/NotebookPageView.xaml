@@ -330,7 +330,8 @@
                                 HorizontalAlignment="Stretch" />
                         <Button Grid.Column="1"
                                 Content="Format for LLM"
-                                IsEnabled="False"
+                                Click="FormatForLlmButton_Click"
+                                IsEnabled="{x:Bind ViewModel.CanFormatForLlm, Mode=OneWay}"
                                 HorizontalAlignment="Stretch" />
                     </Grid>
 

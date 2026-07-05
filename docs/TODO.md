@@ -155,6 +155,7 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [ ] Add developer note templates.
 - [x] Add Markdown export for the current page corrected text.
 - [ ] Add batch Markdown export.
+- [x] Add basic LLM-formatted clipboard handoff.
 - [ ] Add structured handoff exports for GitHub issues, PR checklists, docs, Codex, ChatGPT, and Qwen Coder.
 
 ---
