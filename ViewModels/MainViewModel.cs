@@ -12,6 +12,7 @@ public partial class MainViewModel : ViewModelBase
 {
     private readonly IPageStorageService _storageService;
     private readonly string _importDirectory;
+    private readonly List<ImportedPageListItemViewModel> _allImportedPages = new();
 
     [ObservableProperty]
     private string _applicationTitle = "Scriptum";
@@ -21,6 +22,8 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     private ImportedPageListItemViewModel? _selectedPage;
+
+    private string _pageSearchText = string.Empty;
 
     public MainViewModel()
         : this(new SqlitePageStorageService())
@@ -48,6 +51,28 @@ public partial class MainViewModel : ViewModelBase
     public ObservableCollection<NotebookListItemViewModel> Notebooks { get; } = new();
 
     public bool HasImportedPages => ImportedPages.Count > 0;
+
+    public string PageSearchText
+    {
+        get => _pageSearchText;
+        set
+        {
+            if (_pageSearchText == value)
+            {
+                return;
+            }
+
+            _pageSearchText = value;
+            OnPropertyChanged();
+            ApplyPageSearchFilter();
+        }
+    }
+
+    public bool HasPageSearchFilter => !string.IsNullOrWhiteSpace(PageSearchText);
+
+    public string PageSearchResultLabel => HasPageSearchFilter
+        ? $"{ImportedPages.Count} of {_allImportedPages.Count} pages"
+        : $"{ImportedPages.Count} pages";
 
     public async Task InitializeAsync()
     {
@@ -133,12 +158,23 @@ public partial class MainViewModel : ViewModelBase
         var existing = ImportedPages.FirstOrDefault(item => item.Id == page.Id);
         if (existing is null)
         {
-            await RefreshImportedPagesAsync(page.Id, cancellationToken);
-            return;
+            existing = _allImportedPages.FirstOrDefault(item => item.Id == page.Id);
+            if (existing is null)
+            {
+                await RefreshImportedPagesAsync(page.Id, cancellationToken);
+                return;
+            }
         }
 
         existing.UpdateFrom(page);
-        SelectedPage = existing;
+        ApplyPageSearchFilter(page.Id);
+        if (ImportedPages.Contains(existing))
+        {
+            SelectedPage = existing;
+            return;
+        }
+
+        SelectedPage = null;
     }
 
     private async Task RefreshImportedPagesAsync(Guid? selectedPageId, CancellationToken cancellationToken = default)
@@ -151,39 +187,43 @@ public partial class MainViewModel : ViewModelBase
             EnsurePageNotebook(page);
         }
 
-        var pageIds = pages.Select(page => page.Id).ToHashSet();
+        _allImportedPages.Clear();
 
-        for (var index = ImportedPages.Count - 1; index >= 0; index--)
+        foreach (var page in pages)
         {
-            if (!pageIds.Contains(ImportedPages[index].Id))
-            {
-                ImportedPages.RemoveAt(index);
-            }
+            _allImportedPages.Add(new ImportedPageListItemViewModel(page));
         }
 
-        for (var index = 0; index < pages.Count; index++)
-        {
-            var page = pages[index];
-            var existing = ImportedPages.FirstOrDefault(item => item.Id == page.Id);
-            if (existing is null)
-            {
-                ImportedPages.Insert(index, new ImportedPageListItemViewModel(page));
-            }
-            else
-            {
-                existing.UpdateFrom(page);
-                var currentIndex = ImportedPages.IndexOf(existing);
-                if (currentIndex != index)
-                {
-                    ImportedPages.Move(currentIndex, index);
-                }
-            }
-        }
-
+        ApplyPageSearchFilter(selectedPageId);
         SelectedPage = ImportedPages.FirstOrDefault(page => page.Id == selectedPageId)
             ?? ImportedPages.FirstOrDefault();
         RefreshNotebookListItems(pages);
+    }
+
+    private void ApplyPageSearchFilter(Guid? preferredSelectedPageId = null)
+    {
+        var filteredPages = string.IsNullOrWhiteSpace(PageSearchText)
+            ? _allImportedPages
+            : _allImportedPages
+                .Where(page => page.SearchText.Contains(PageSearchText.Trim(), StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+        ImportedPages.Clear();
+        foreach (var page in filteredPages)
+        {
+            ImportedPages.Add(page);
+        }
+
+        if (SelectedPage is not null && ImportedPages.All(page => page.Id != SelectedPage.Id))
+        {
+            SelectedPage = preferredSelectedPageId is not null
+                ? ImportedPages.FirstOrDefault(page => page.Id == preferredSelectedPageId)
+                : null;
+        }
+
         OnPropertyChanged(nameof(HasImportedPages));
+        OnPropertyChanged(nameof(HasPageSearchFilter));
+        OnPropertyChanged(nameof(PageSearchResultLabel));
     }
 
     private void EnsurePageNotebook(NotebookPage page)

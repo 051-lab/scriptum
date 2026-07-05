@@ -149,7 +149,8 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 
 ## Phase 5: Development workflow usefulness
 
-- [ ] Add full-text search over corrected transcriptions.
+- [x] Add basic sidebar search over titles, filenames, notebooks, and saved transcription text.
+- [ ] Add full-text search index over corrected transcriptions.
 - [ ] Add tags and project/repo association.
 - [ ] Add developer note templates.
 - [ ] Add Markdown export.

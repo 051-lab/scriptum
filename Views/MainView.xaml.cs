@@ -51,6 +51,12 @@ public sealed partial class MainView : Page
         try
         {
             var requestedPage = ViewModel.SelectedPage;
+            if (requestedPage is null)
+            {
+                Bindings.Update();
+                return;
+            }
+
             if (requestedPage?.Id == _lastConfirmedSelectedPage?.Id)
             {
                 return;

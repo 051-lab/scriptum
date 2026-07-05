@@ -16,6 +16,8 @@ public sealed partial class ImportedPageListItemViewModel : ViewModelBase
 
     public string SourceFileName { get; private set; } = "Imported page";
 
+    public string SearchText { get; private set; } = string.Empty;
+
     public DateTimeOffset? ImportedAt { get; private set; }
 
     public DateTimeOffset UpdatedAt { get; private set; }
@@ -30,6 +32,14 @@ public sealed partial class ImportedPageListItemViewModel : ViewModelBase
     {
         Title = page.Title;
         SourceFileName = page.OriginalFileName ?? "Imported page";
+        SearchText = string.Join(
+            ' ',
+            page.Title,
+            page.OriginalFileName,
+            page.NotebookTitle,
+            page.RawTranscriptionText,
+            page.CorrectedTranscriptionText,
+            page.TranscriptionText);
         ImportedAt = page.ImportedAt;
         UpdatedAt = page.UpdatedAt;
         IsImageMissing = !string.IsNullOrWhiteSpace(page.SourceImagePath) && !File.Exists(page.SourceImagePath);
@@ -39,6 +49,7 @@ public sealed partial class ImportedPageListItemViewModel : ViewModelBase
 
         OnPropertyChanged(nameof(Title));
         OnPropertyChanged(nameof(SourceFileName));
+        OnPropertyChanged(nameof(SearchText));
         OnPropertyChanged(nameof(ImportedAt));
         OnPropertyChanged(nameof(UpdatedAt));
         OnPropertyChanged(nameof(IsImageMissing));

@@ -80,6 +80,11 @@
                                    Foreground="#81796C"
                                    FontSize="12"
                                    FontWeight="SemiBold" />
+                        <TextBox PlaceholderText="Search pages"
+                                 Text="{x:Bind ViewModel.PageSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Text="{x:Bind ViewModel.PageSearchResultLabel, Mode=OneWay}"
+                                   Foreground="#81796C"
+                                   FontSize="12" />
                         <ListView ItemsSource="{x:Bind ViewModel.ImportedPages, Mode=OneWay}"
                                   SelectedItem="{x:Bind ViewModel.SelectedPage, Mode=TwoWay}"
                                   SelectionChanged="ImportedPages_SelectionChanged"
