@@ -5,6 +5,12 @@ public static class TranscriptionProviderFactory
     public static ITranscriptionProvider CreateDefault()
     {
         var provider = Environment.GetEnvironmentVariable("SCRIPTUM_TRANSCRIPTION_PROVIDER");
+        if (string.Equals(provider, "windows-ocr", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(provider, "windows", StringComparison.OrdinalIgnoreCase))
+        {
+            return new WindowsOcrTranscriptionProvider();
+        }
+
         var useQwen = string.Equals(provider, "qwen", StringComparison.OrdinalIgnoreCase)
             || string.Equals(
                 Environment.GetEnvironmentVariable("SCRIPTUM_USE_QWEN_TRANSCRIPTION"),

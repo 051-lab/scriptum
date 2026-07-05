@@ -132,6 +132,7 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [x] Add disabled OpenCVSharp adapter shell or equivalent preprocessing adapter.
 - [x] Add `ITranscriptionProvider` abstraction.
 - [x] Add mock/local transcription provider for testing.
+- [x] Add Windows OCR transcription provider.
 - [x] Add Qwen-VL provider boundary.
 - [x] Add transcription UI and correction panel.
 - [x] Persist corrected transcription text.

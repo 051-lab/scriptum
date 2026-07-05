@@ -60,4 +60,16 @@ dotnet run --project Scriptum.csproj --configuration Release -p:Platform=x64
 
 `SCRIPTUM_QWEN_ENDPOINT` can be either a base `/v1` URL or a full `/chat/completions` URL. The app sends the prepared notebook page image to the provider and saves the returned text as the page's raw transcription.
 
+### Optional Windows OCR transcription
+
+For a no-key OCR baseline, use the Windows OCR provider:
+
+```powershell
+$env:SCRIPTUM_TRANSCRIPTION_PROVIDER = "windows-ocr"
+
+dotnet run --project Scriptum.csproj --configuration Release -p:Platform=x64
+```
+
+Windows OCR is local and credential-free, but handwritten notebook accuracy depends heavily on the handwriting, lighting, contrast, crop, and installed Windows OCR language support. Vision-model transcription remains the stronger path for messy handwritten pages.
+
 WSL can be useful for Git and text editing, but WinUI 3 launch and manual UI testing should be run from the Windows desktop session so the app can create a real window and receive mouse, pen, or touch input.
