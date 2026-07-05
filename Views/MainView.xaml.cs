@@ -20,6 +20,7 @@ public sealed partial class MainView : Page
         DataContext = ViewModel;
         NotebookPageSurface.SetViewModel(ViewModel.NotebookPage);
         NotebookPageSurface.PageLibraryChanged += NotebookPageSurface_PageLibraryChanged;
+        NotebookPageSurface.NewPageRequested += NotebookPageSurface_NewPageRequested;
     }
 
     private async void Page_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
@@ -62,9 +63,20 @@ public sealed partial class MainView : Page
         Bindings.Update();
     }
 
+    private async void NotebookPageSurface_NewPageRequested(object? sender, EventArgs e)
+    {
+        await NewPageAsync();
+    }
+
     private async void DeleteSelectedPage_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
         await DeleteSelectedPageWithConfirmationAsync();
+    }
+
+    private async void NewPageKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        await NewPageAsync();
     }
 
     private async void ImportPageKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
@@ -130,6 +142,13 @@ public sealed partial class MainView : Page
         }
 
         await ViewModel.DeleteSelectedPageAsync();
+        NotebookPageSurface.RefreshView();
+        Bindings.Update();
+    }
+
+    private async Task NewPageAsync()
+    {
+        await ViewModel.NewPageAsync();
         NotebookPageSurface.RefreshView();
         Bindings.Update();
     }

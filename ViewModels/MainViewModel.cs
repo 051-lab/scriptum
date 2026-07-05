@@ -96,6 +96,13 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
+    public Task NewPageAsync()
+    {
+        SelectedPage = null;
+        NotebookPage.ResetPage();
+        return Task.CompletedTask;
+    }
+
     public async Task RefreshImportedPagesAsync(CancellationToken cancellationToken = default)
     {
         var selectedPageId = SelectedPage?.Id ?? NotebookPage.CurrentPage.Id;

@@ -7,6 +7,9 @@
     Loaded="Page_Loaded">
 
     <Page.KeyboardAccelerators>
+        <KeyboardAccelerator Key="N"
+                             Modifiers="Control"
+                             Invoked="NewPageKeyboardAccelerator_Invoked" />
         <KeyboardAccelerator Key="O"
                              Modifiers="Control"
                              Invoked="ImportPageKeyboardAccelerator_Invoked" />

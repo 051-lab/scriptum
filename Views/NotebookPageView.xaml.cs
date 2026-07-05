@@ -15,6 +15,8 @@ public sealed partial class NotebookPageView : UserControl
 {
     public event EventHandler? PageLibraryChanged;
 
+    public event EventHandler? NewPageRequested;
+
     public NotebookPageViewModel ViewModel { get; private set; } = new();
 
     public NotebookPageView()
@@ -61,6 +63,24 @@ public sealed partial class NotebookPageView : UserControl
     public async Task TranscribePageAsync()
     {
         await RunTranscriptionAsync();
+    }
+
+    private void NewPageButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (NewPageRequested is not null)
+        {
+            NewPageRequested.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        ResetSurfaceOnly();
+    }
+
+    private void ResetSurfaceOnly()
+    {
+        ViewModel.ResetPage();
+        Bindings.Update();
+        UpdatePageStateOverlays();
     }
 
     private async void ImportImageButton_Click(object sender, RoutedEventArgs e)

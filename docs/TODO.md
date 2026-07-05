@@ -113,7 +113,7 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [ ] Add page title editing.
 - [ ] Add delete behavior with confirmation.
 - [x] Add keyboard shortcuts: Import, Save, Load Latest, Delete, Transcribe.
-- [ ] Add New Page command and shortcut.
+- [x] Add New Page command and shortcut.
 
 ---
 

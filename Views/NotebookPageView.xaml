@@ -51,6 +51,7 @@
                         Orientation="Horizontal"
                         Spacing="8"
                         VerticalAlignment="Center">
+                <Button Content="New Page" Click="NewPageButton_Click" />
                 <Button Content="Import Page" Click="ImportImageButton_Click" />
                 <Button Content="Load Latest" Click="LoadLatestButton_Click" />
                 <Button Content="Save" Click="SaveButton_Click" />
