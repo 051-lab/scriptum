@@ -91,6 +91,12 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
 
     public string PageStatusLabel => HasImportedImage ? "Preserved original" : "Ready to import";
 
+    public double PageImageRotationDegrees => NormalizeRotation(CurrentPage.RotationDegrees);
+
+    public string RotationLabel => HasImportedImage
+        ? $"{PageImageRotationDegrees:0} deg rotation"
+        : "No rotation";
+
     public string TranscriptionText => string.IsNullOrWhiteSpace(CurrentPage.CorrectedTranscriptionText ?? CurrentPage.TranscriptionText)
         ? "No transcription yet."
         : CurrentPage.CorrectedTranscriptionText ?? CurrentPage.TranscriptionText ?? string.Empty;
@@ -294,6 +300,37 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         OnPropertyChanged(nameof(CurrentPage));
     }
 
+    public async Task RotatePageAsync(double degrees, CancellationToken cancellationToken = default)
+    {
+        if (!HasImportedImage)
+        {
+            StatusMessage = "Import a notebook page before rotating it.";
+            OnPropertyChanged(nameof(StatusMessage));
+            return;
+        }
+
+        IsLoading = true;
+        ErrorMessage = null;
+
+        try
+        {
+            CurrentPage.RotationDegrees = NormalizeRotation(CurrentPage.RotationDegrees + degrees);
+            CurrentPage.UpdatedAt = DateTimeOffset.UtcNow;
+
+            await _storageService.SavePageAsync(CurrentPage, cancellationToken);
+            StatusMessage = $"Rotated page to {PageImageRotationDegrees:0} degrees.";
+            NotifyPageStateChanged();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Unable to save page rotation: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
     public async Task TranscribeAsync(CancellationToken cancellationToken = default)
     {
         if (!HasImportedImage)
@@ -439,6 +476,8 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         OnPropertyChanged(nameof(ImageDetails));
         OnPropertyChanged(nameof(ImageSizeLabel));
         OnPropertyChanged(nameof(PageStatusLabel));
+        OnPropertyChanged(nameof(PageImageRotationDegrees));
+        OnPropertyChanged(nameof(RotationLabel));
         OnPropertyChanged(nameof(TranscriptionText));
         OnPropertyChanged(nameof(ImportedDateLabel));
         OnPropertyChanged(nameof(TranscriptionStatus));
@@ -511,6 +550,12 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
             : "size unknown";
 
         return $"{dimensions} | {size}";
+    }
+
+    private static double NormalizeRotation(double degrees)
+    {
+        var normalized = degrees % 360;
+        return normalized < 0 ? normalized + 360 : normalized;
     }
 
     private static async Task<(int Width, int Height)> ReadImageDimensionsAsync(string imagePath)

@@ -142,10 +142,21 @@
                             <StackPanel Grid.Column="1"
                                         Orientation="Horizontal"
                                         Spacing="8">
-                                <Button Content="Fit" IsEnabled="False" />
-                                <Button Content="Zoom" IsEnabled="False" />
-                                <Button Content="Rotate" IsEnabled="False" />
-                                <Button Content="Open Original" IsEnabled="False" />
+                                <Button Content="Fit"
+                                        Click="FitPageButton_Click"
+                                        IsEnabled="{x:Bind ViewModel.HasImportedImage, Mode=OneWay}" />
+                                <Button Content="Zoom"
+                                        Click="ZoomPageButton_Click"
+                                        IsEnabled="{x:Bind ViewModel.HasImportedImage, Mode=OneWay}" />
+                                <Button Content="Rotate Left"
+                                        Click="RotateLeftButton_Click"
+                                        IsEnabled="{x:Bind ViewModel.HasImportedImage, Mode=OneWay}" />
+                                <Button Content="Rotate Right"
+                                        Click="RotateRightButton_Click"
+                                        IsEnabled="{x:Bind ViewModel.HasImportedImage, Mode=OneWay}" />
+                                <Button Content="Open Original"
+                                        Click="OpenOriginalButton_Click"
+                                        IsEnabled="{x:Bind ViewModel.HasImportedImage, Mode=OneWay}" />
                             </StackPanel>
                         </Grid>
 
@@ -170,11 +181,19 @@
                                         </Border.Shadow>
                                         <ScrollViewer HorizontalScrollBarVisibility="Auto"
                                                       VerticalScrollBarVisibility="Auto"
-                                                      ZoomMode="Enabled">
+                                                      ZoomMode="Enabled"
+                                                      MinZoomFactor="0.5"
+                                                      MaxZoomFactor="4"
+                                                      x:Name="PageScrollViewer">
                                             <Image Source="{x:Bind ViewModel.PageImage, Mode=OneWay}"
                                                    Stretch="Uniform"
                                                    HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center" />
+                                                   VerticalAlignment="Center"
+                                                   RenderTransformOrigin="0.5,0.5">
+                                                <Image.RenderTransform>
+                                                    <RotateTransform Angle="{x:Bind ViewModel.PageImageRotationDegrees, Mode=OneWay}" />
+                                                </Image.RenderTransform>
+                                            </Image>
                                         </ScrollViewer>
                                     </Border>
 
@@ -245,6 +264,9 @@
                                      Text="{x:Bind ViewModel.EditablePageTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      PlaceholderText="Page title" />
                             <TextBlock Text="{x:Bind ViewModel.ImageDetails, Mode=OneWay}"
+                                       Foreground="#6F675C"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Text="{x:Bind ViewModel.RotationLabel, Mode=OneWay}"
                                        Foreground="#6F675C"
                                        TextWrapping="Wrap" />
                             <TextBlock Text="{x:Bind ViewModel.TranscriptionStatus, Mode=OneWay}"

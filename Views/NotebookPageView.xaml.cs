@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Scriptum.ViewModels;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.System;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
 
@@ -137,6 +138,53 @@ public sealed partial class NotebookPageView : UserControl
         await RunTranscriptionAsync();
     }
 
+    private void FitPageButton_Click(object sender, RoutedEventArgs e)
+    {
+        PageScrollViewer.ChangeView(null, null, 1.0f);
+    }
+
+    private void ZoomPageButton_Click(object sender, RoutedEventArgs e)
+    {
+        var nextZoom = Math.Min(PageScrollViewer.ZoomFactor + 0.25f, PageScrollViewer.MaxZoomFactor);
+        PageScrollViewer.ChangeView(null, null, nextZoom);
+    }
+
+    private async void RotateLeftButton_Click(object sender, RoutedEventArgs e)
+    {
+        await ViewModel.RotatePageAsync(-90);
+        PageLibraryChanged?.Invoke(this, EventArgs.Empty);
+        Bindings.Update();
+    }
+
+    private async void RotateRightButton_Click(object sender, RoutedEventArgs e)
+    {
+        await ViewModel.RotatePageAsync(90);
+        PageLibraryChanged?.Invoke(this, EventArgs.Empty);
+        Bindings.Update();
+    }
+
+    private async void OpenOriginalButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (!ViewModel.HasImportedImage || string.IsNullOrWhiteSpace(ViewModel.CurrentPage.SourceImagePath))
+        {
+            return;
+        }
+
+        try
+        {
+            var file = await Windows.Storage.StorageFile.GetFileFromPathAsync(ViewModel.CurrentPage.SourceImagePath);
+            await Launcher.LaunchFileAsync(file);
+        }
+        catch (FileNotFoundException)
+        {
+            await ShowMessageAsync("The original imported image file could not be found.");
+        }
+        catch (UnauthorizedAccessException)
+        {
+            await ShowMessageAsync("Scriptum does not have permission to open the original image file.");
+        }
+    }
+
     private async Task RunTranscriptionAsync()
     {
         await ViewModel.TranscribeAsync();
@@ -148,5 +196,18 @@ public sealed partial class NotebookPageView : UserControl
     private void UpdateEmptyState()
     {
         EmptyState.Visibility = ViewModel.HasImportedImage ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    private async Task ShowMessageAsync(string message)
+    {
+        var dialog = new ContentDialog
+        {
+            Title = "Notebook page",
+            Content = message,
+            CloseButtonText = "OK",
+            XamlRoot = XamlRoot
+        };
+
+        await dialog.ShowAsync();
     }
 }

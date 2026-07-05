@@ -107,7 +107,8 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [x] Add sidebar page navigation.
 - [x] Preserve sidebar selection and refresh edited titles.
 - [ ] Add import queue or recent imports list.
-- [ ] Add basic image rotate/crop workflow for photographed notebook pages.
+- [x] Add basic image rotation workflow for photographed notebook pages.
+- [ ] Add basic image crop workflow for photographed notebook pages.
 - [ ] Add page title editing.
 - [ ] Add delete behavior with confirmation.
 - [ ] Add keyboard shortcuts: Import, Save, New Page, Delete.
