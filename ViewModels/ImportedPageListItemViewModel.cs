@@ -20,15 +20,18 @@ public sealed partial class ImportedPageListItemViewModel : ViewModelBase
 
     public string TranscriptionStatus { get; private set; } = "Waiting for transcription";
 
+    public bool IsImageMissing { get; private set; }
+
     public string Metadata => ImportedAt is null
-        ? TranscriptionStatus
-        : $"{ImportedAt.Value.ToLocalTime():MMM d, h:mm tt} | {TranscriptionStatus}";
+        ? GetStatusMetadata()
+        : $"{ImportedAt.Value.ToLocalTime():MMM d, h:mm tt} | {GetStatusMetadata()}";
 
     public void UpdateFrom(NotebookPage page)
     {
         Title = page.Title;
         SourceFileName = page.OriginalFileName ?? "Imported page";
         ImportedAt = page.ImportedAt;
+        IsImageMissing = !string.IsNullOrWhiteSpace(page.SourceImagePath) && !File.Exists(page.SourceImagePath);
         TranscriptionStatus = string.IsNullOrWhiteSpace(page.CorrectedTranscriptionText ?? page.RawTranscriptionText ?? page.TranscriptionText)
             ? "Waiting for transcription"
             : "Draft ready";
@@ -36,7 +39,12 @@ public sealed partial class ImportedPageListItemViewModel : ViewModelBase
         OnPropertyChanged(nameof(Title));
         OnPropertyChanged(nameof(SourceFileName));
         OnPropertyChanged(nameof(ImportedAt));
+        OnPropertyChanged(nameof(IsImageMissing));
         OnPropertyChanged(nameof(TranscriptionStatus));
         OnPropertyChanged(nameof(Metadata));
     }
+
+    private string GetStatusMetadata() => IsImageMissing
+        ? "Image missing"
+        : TranscriptionStatus;
 }

@@ -21,7 +21,7 @@ public sealed partial class NotebookPageView : UserControl
     {
         InitializeComponent();
         DataContext = ViewModel;
-        UpdateEmptyState();
+        UpdatePageStateOverlays();
     }
 
     public void SetViewModel(NotebookPageViewModel viewModel)
@@ -29,13 +29,13 @@ public sealed partial class NotebookPageView : UserControl
         ViewModel = viewModel;
         DataContext = ViewModel;
         Bindings.Update();
-        UpdateEmptyState();
+        UpdatePageStateOverlays();
     }
 
     public void RefreshView()
     {
         Bindings.Update();
-        UpdateEmptyState();
+        UpdatePageStateOverlays();
     }
 
     private async void ImportImageButton_Click(object sender, RoutedEventArgs e)
@@ -71,7 +71,7 @@ public sealed partial class NotebookPageView : UserControl
             PageLibraryChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        UpdateEmptyState();
+        UpdatePageStateOverlays();
     }
 
     private async void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -79,7 +79,7 @@ public sealed partial class NotebookPageView : UserControl
         await ViewModel.SaveTextEditsAsync();
         PageLibraryChanged?.Invoke(this, EventArgs.Empty);
         Bindings.Update();
-        UpdateEmptyState();
+        UpdatePageStateOverlays();
     }
 
     private async void SaveCorrectionButton_Click(object sender, RoutedEventArgs e)
@@ -87,7 +87,7 @@ public sealed partial class NotebookPageView : UserControl
         await ViewModel.SaveTextEditsAsync();
         PageLibraryChanged?.Invoke(this, EventArgs.Empty);
         Bindings.Update();
-        UpdateEmptyState();
+        UpdatePageStateOverlays();
     }
 
     private void CopyTextButton_Click(object sender, RoutedEventArgs e)
@@ -125,7 +125,7 @@ public sealed partial class NotebookPageView : UserControl
     {
         await ViewModel.LoadLatestAsync();
         PageLibraryChanged?.Invoke(this, EventArgs.Empty);
-        UpdateEmptyState();
+        UpdatePageStateOverlays();
     }
 
     private async void PrepareTranscriptionButton_Click(object sender, RoutedEventArgs e)
@@ -190,12 +190,13 @@ public sealed partial class NotebookPageView : UserControl
         await ViewModel.TranscribeAsync();
         PageLibraryChanged?.Invoke(this, EventArgs.Empty);
         Bindings.Update();
-        UpdateEmptyState();
+        UpdatePageStateOverlays();
     }
 
-    private void UpdateEmptyState()
+    private void UpdatePageStateOverlays()
     {
         EmptyState.Visibility = ViewModel.HasImportedImage ? Visibility.Collapsed : Visibility.Visible;
+        MissingImageState.Visibility = ViewModel.IsImportedImageMissing ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private async Task ShowMessageAsync(string message)

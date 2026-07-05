@@ -80,7 +80,8 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [x] List imported pages from encrypted local storage.
 - [x] Select an imported page from the sidebar.
 - [ ] Add clear database failure messages.
-- [ ] Add corrupt-payload handling.
+- [x] Add corrupt-payload handling.
+- [x] Add missing imported-image recovery state.
 
 ### P1.4 Add basic page lifecycle
 

@@ -42,8 +42,7 @@ public sealed class JsonPageStorageService : IPageStorageService
             return null;
         }
 
-        await using var stream = File.OpenRead(path);
-        return await JsonSerializer.DeserializeAsync<NotebookPage>(stream, _jsonOptions, cancellationToken);
+        return await TryLoadPageAsync(path, cancellationToken);
     }
 
     public async Task<NotebookPage?> LoadLatestPageAsync(CancellationToken cancellationToken = default)
@@ -58,8 +57,7 @@ public sealed class JsonPageStorageService : IPageStorageService
             return null;
         }
 
-        await using var stream = File.OpenRead(latestPath);
-        return await JsonSerializer.DeserializeAsync<NotebookPage>(stream, _jsonOptions, cancellationToken);
+        return await TryLoadPageAsync(latestPath, cancellationToken);
     }
 
     public async Task<IReadOnlyList<NotebookPage>> LoadPagesAsync(CancellationToken cancellationToken = default)
@@ -69,8 +67,7 @@ public sealed class JsonPageStorageService : IPageStorageService
             .EnumerateFiles(_pagesDirectory, "*.json", SearchOption.TopDirectoryOnly)
             .OrderByDescending(File.GetLastWriteTimeUtc))
         {
-            await using var stream = File.OpenRead(path);
-            var page = await JsonSerializer.DeserializeAsync<NotebookPage>(stream, _jsonOptions, cancellationToken);
+            var page = await TryLoadPageAsync(path, cancellationToken);
             if (page is not null)
             {
                 pages.Add(page);
@@ -92,4 +89,21 @@ public sealed class JsonPageStorageService : IPageStorageService
     }
 
     private string GetPagePath(Guid pageId) => Path.Combine(_pagesDirectory, $"{pageId:N}.json");
+
+    private async Task<NotebookPage?> TryLoadPageAsync(string path, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await using var stream = File.OpenRead(path);
+            return await JsonSerializer.DeserializeAsync<NotebookPage>(stream, _jsonOptions, cancellationToken);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+        catch (NotSupportedException)
+        {
+            return null;
+        }
+    }
 }

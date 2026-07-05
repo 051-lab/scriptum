@@ -15,7 +15,7 @@ The product direction is no longer an in-app handwriting canvas. Scriptum is for
 | Product concept | Strong | Private physical-notebook archive with digital transcription counterpart. |
 | App shell | In progress | Warm/dark notebook archive shell with left library, center page artifact, and right transcription workspace. |
 | Page import | Early MVP | Image import copies supported files into local app storage, displays the imported page, and supports saved 90-degree orientation changes. |
-| Local persistence | Early MVP | SQLCipher-backed page payload storage saves imported page metadata, lists imported pages, and loads selected pages. |
+| Local persistence | Early MVP | SQLCipher-backed page payload storage saves imported page metadata, lists imported pages, loads selected pages, skips unreadable payloads, and shows missing-image recovery states. |
 | Build/local launch | Working locally | Restore and Release x64 build pass locally; the app launches from Windows. |
 | Transcription workspace | Early MVP | Prepared-image storage, no-op preprocessing, disabled OpenCV preprocessing shell, and disabled Qwen vision provider shell feed a mock provider by default; corrected text can be edited, copied, cleared, and saved; real AI/OCR provider work remains future scope. |
 | Notebook management | Early MVP | Sidebar page list, selection preservation, title refresh, and confirmed delete work for imported pages; notebook/project groups are placeholders and tags are still missing. |

@@ -144,19 +144,19 @@
                                         Spacing="8">
                                 <Button Content="Fit"
                                         Click="FitPageButton_Click"
-                                        IsEnabled="{x:Bind ViewModel.HasImportedImage, Mode=OneWay}" />
+                                        IsEnabled="{x:Bind ViewModel.HasReadablePageImage, Mode=OneWay}" />
                                 <Button Content="Zoom"
                                         Click="ZoomPageButton_Click"
-                                        IsEnabled="{x:Bind ViewModel.HasImportedImage, Mode=OneWay}" />
+                                        IsEnabled="{x:Bind ViewModel.HasReadablePageImage, Mode=OneWay}" />
                                 <Button Content="Rotate Left"
                                         Click="RotateLeftButton_Click"
-                                        IsEnabled="{x:Bind ViewModel.HasImportedImage, Mode=OneWay}" />
+                                        IsEnabled="{x:Bind ViewModel.HasReadablePageImage, Mode=OneWay}" />
                                 <Button Content="Rotate Right"
                                         Click="RotateRightButton_Click"
-                                        IsEnabled="{x:Bind ViewModel.HasImportedImage, Mode=OneWay}" />
+                                        IsEnabled="{x:Bind ViewModel.HasReadablePageImage, Mode=OneWay}" />
                                 <Button Content="Open Original"
                                         Click="OpenOriginalButton_Click"
-                                        IsEnabled="{x:Bind ViewModel.HasImportedImage, Mode=OneWay}" />
+                                        IsEnabled="{x:Bind ViewModel.HasReadablePageImage, Mode=OneWay}" />
                             </StackPanel>
                         </Grid>
 
@@ -217,6 +217,31 @@
                                                        TextAlignment="Center"
                                                        Foreground="#AFA89C" />
                                             <Button Content="Import Page"
+                                                    Click="ImportImageButton_Click"
+                                                    HorizontalAlignment="Center" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border x:Name="MissingImageState"
+                                            Background="#2A241F"
+                                            BorderBrush="#5D4030"
+                                            BorderThickness="1"
+                                            CornerRadius="8"
+                                            Padding="28"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            MaxWidth="500">
+                                        <StackPanel Spacing="14">
+                                            <TextBlock Text="Imported image file is missing"
+                                                       Foreground="#F7F1E6"
+                                                       FontSize="22"
+                                                       FontWeight="SemiBold"
+                                                       TextAlignment="Center" />
+                                            <TextBlock Text="{x:Bind ViewModel.ImageDetails, Mode=OneWay}"
+                                                       TextWrapping="Wrap"
+                                                       TextAlignment="Center"
+                                                       Foreground="#D6CFC4" />
+                                            <Button Content="Reimport Page"
                                                     Click="ImportImageButton_Click"
                                                     HorizontalAlignment="Center" />
                                         </StackPanel>

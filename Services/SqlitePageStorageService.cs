@@ -175,8 +175,19 @@ public sealed class SqlitePageStorageService : IPageStorageService, IDisposable
 
     private NotebookPage? DeserializePage(SqliteDataReader reader)
     {
-        var payload = (byte[])reader["payload"];
-        return JsonSerializer.Deserialize<NotebookPage>(payload, _jsonOptions);
+        try
+        {
+            var payload = (byte[])reader["payload"];
+            return JsonSerializer.Deserialize<NotebookPage>(payload, _jsonOptions);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+        catch (NotSupportedException)
+        {
+            return null;
+        }
     }
 
     private static DatabaseContext CreateDefaultDatabaseContext()

@@ -66,6 +66,10 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
 
     public bool HasImportedImage => !string.IsNullOrWhiteSpace(CurrentPage.SourceImagePath);
 
+    public bool HasReadablePageImage => HasImportedImage && File.Exists(CurrentPage.SourceImagePath);
+
+    public bool IsImportedImageMissing => HasImportedImage && !HasReadablePageImage;
+
     public string PageTitle => CurrentPage.Title;
 
     public string EditablePageTitle
@@ -89,7 +93,11 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
 
     public string ImageSizeLabel => GetImageSizeLabel();
 
-    public string PageStatusLabel => HasImportedImage ? "Preserved original" : "Ready to import";
+    public string PageStatusLabel => IsImportedImageMissing
+        ? "Image file missing"
+        : HasImportedImage
+            ? "Preserved original"
+            : "Ready to import";
 
     public double PageImageRotationDegrees => NormalizeRotation(CurrentPage.RotationDegrees);
 
@@ -340,6 +348,13 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
             return;
         }
 
+        if (IsImportedImageMissing)
+        {
+            StatusMessage = "The imported image file is missing. Reimport this notebook page before transcription.";
+            OnPropertyChanged(nameof(StatusMessage));
+            return;
+        }
+
         IsLoading = true;
         ErrorMessage = null;
 
@@ -471,6 +486,8 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         OnPropertyChanged(nameof(StatusMessage));
         OnPropertyChanged(nameof(PageImage));
         OnPropertyChanged(nameof(HasImportedImage));
+        OnPropertyChanged(nameof(HasReadablePageImage));
+        OnPropertyChanged(nameof(IsImportedImageMissing));
         OnPropertyChanged(nameof(PageTitle));
         OnPropertyChanged(nameof(SourceFileLabel));
         OnPropertyChanged(nameof(ImageDetails));
@@ -522,6 +539,11 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
             return "Import a JPG, PNG, BMP, GIF, or TIFF image from a photographed or scanned notebook page.";
         }
 
+        if (IsImportedImageMissing)
+        {
+            return $"Missing imported image: {CurrentPage.SourceImagePath}";
+        }
+
         var dimensions = CurrentPage.ImagePixelWidth is not null && CurrentPage.ImagePixelHeight is not null
             ? $"{CurrentPage.ImagePixelWidth} x {CurrentPage.ImagePixelHeight}px"
             : "dimensions unknown";
@@ -539,6 +561,11 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         if (!HasImportedImage)
         {
             return "No image selected";
+        }
+
+        if (IsImportedImageMissing)
+        {
+            return "Imported image missing";
         }
 
         var dimensions = CurrentPage.ImagePixelWidth is not null && CurrentPage.ImagePixelHeight is not null
