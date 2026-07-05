@@ -77,6 +77,23 @@ public sealed class JsonPageStorageService : IPageStorageService
         return pages;
     }
 
+    public async Task<IReadOnlyList<NotebookPage>> SearchPagesAsync(
+        string searchText,
+        Guid? notebookId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var pages = await LoadPagesAsync(cancellationToken);
+        if (string.IsNullOrWhiteSpace(searchText))
+        {
+            return pages;
+        }
+
+        return pages
+            .Where(page => notebookId is null || page.NotebookId == notebookId)
+            .Where(page => BuildSearchText(page).Contains(searchText.Trim(), StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
     public Task DeletePageAsync(Guid pageId, CancellationToken cancellationToken = default)
     {
         var path = GetPagePath(pageId);
@@ -89,6 +106,15 @@ public sealed class JsonPageStorageService : IPageStorageService
     }
 
     private string GetPagePath(Guid pageId) => Path.Combine(_pagesDirectory, $"{pageId:N}.json");
+
+    private static string BuildSearchText(NotebookPage page) => string.Join(
+        ' ',
+        page.Title,
+        page.OriginalFileName,
+        page.NotebookTitle,
+        page.RawTranscriptionText,
+        page.CorrectedTranscriptionText,
+        page.TranscriptionText);
 
     private async Task<NotebookPage?> TryLoadPageAsync(string path, CancellationToken cancellationToken)
     {

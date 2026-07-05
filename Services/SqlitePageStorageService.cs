@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Microsoft.Data.Sqlite;
 using Scriptum.Data;
 using Scriptum.Models;
@@ -18,6 +19,7 @@ public sealed class SqlitePageStorageService : IPageStorageService, IDisposable
     };
     private bool _initialized;
     private bool _disposed;
+    private bool _searchIndexAvailable = true;
 
     public SqlitePageStorageService()
         : this(CreateDefaultDatabaseContext())
@@ -53,6 +55,7 @@ public sealed class SqlitePageStorageService : IPageStorageService, IDisposable
         command.Parameters.Add("$payload", SqliteType.Blob).Value = payload;
 
         await command.ExecuteNonQueryAsync(cancellationToken);
+        await UpsertSearchIndexAsync(page, cancellationToken);
     }
 
     public async Task<NotebookPage?> LoadPageAsync(Guid pageId, CancellationToken cancellationToken = default)
@@ -123,6 +126,64 @@ public sealed class SqlitePageStorageService : IPageStorageService, IDisposable
         return pages;
     }
 
+    public async Task<IReadOnlyList<NotebookPage>> SearchPagesAsync(
+        string searchText,
+        Guid? notebookId = null,
+        CancellationToken cancellationToken = default)
+    {
+        await EnsureInitializedAsync(cancellationToken);
+
+        if (string.IsNullOrWhiteSpace(searchText))
+        {
+            return await LoadPagesAsync(cancellationToken);
+        }
+
+        if (!_searchIndexAvailable)
+        {
+            return await SearchPagesInMemoryAsync(searchText, notebookId, cancellationToken);
+        }
+
+        var ftsQuery = BuildFtsQuery(searchText);
+        if (string.IsNullOrWhiteSpace(ftsQuery))
+        {
+            return await SearchPagesInMemoryAsync(searchText, notebookId, cancellationToken);
+        }
+
+        try
+        {
+            using var command = _databaseContext.Connection.CreateCommand();
+            command.CommandText = """
+                SELECT p.payload
+                FROM notebook_page_search AS s
+                JOIN notebook_pages AS p ON p.id = s.page_id
+                WHERE notebook_page_search MATCH $query
+                    AND ($notebookId IS NULL OR s.notebook_id = $notebookId)
+                ORDER BY p.updated_at DESC;
+                """;
+
+            command.Parameters.AddWithValue("$query", ftsQuery);
+            command.Parameters.AddWithValue("$notebookId", notebookId?.ToString("N") ?? (object)DBNull.Value);
+
+            var pages = new List<NotebookPage>();
+            await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                var page = DeserializePage(reader);
+                if (page is not null)
+                {
+                    pages.Add(page);
+                }
+            }
+
+            return pages;
+        }
+        catch (SqliteException)
+        {
+            _searchIndexAvailable = false;
+            return await SearchPagesInMemoryAsync(searchText, notebookId, cancellationToken);
+        }
+    }
+
     public async Task DeletePageAsync(Guid pageId, CancellationToken cancellationToken = default)
     {
         await EnsureInitializedAsync(cancellationToken);
@@ -135,6 +196,7 @@ public sealed class SqlitePageStorageService : IPageStorageService, IDisposable
         command.Parameters.AddWithValue("$id", pageId.ToString("N"));
 
         await command.ExecuteNonQueryAsync(cancellationToken);
+        await DeleteSearchIndexEntryAsync(pageId, cancellationToken);
     }
 
     public void Dispose()
@@ -170,7 +232,122 @@ public sealed class SqlitePageStorageService : IPageStorageService, IDisposable
             """;
 
         await command.ExecuteNonQueryAsync(cancellationToken);
+        await EnsureSearchIndexAsync(cancellationToken);
         _initialized = true;
+    }
+
+    private async Task EnsureSearchIndexAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var command = _databaseContext.Connection.CreateCommand();
+            command.CommandText = """
+                CREATE VIRTUAL TABLE IF NOT EXISTS notebook_page_search USING fts5(
+                    page_id UNINDEXED,
+                    notebook_id UNINDEXED,
+                    title,
+                    source_file_name,
+                    notebook_title,
+                    raw_transcription,
+                    corrected_transcription,
+                    transcription
+                );
+                """;
+
+            await command.ExecuteNonQueryAsync(cancellationToken);
+            _searchIndexAvailable = true;
+        }
+        catch (SqliteException)
+        {
+            _searchIndexAvailable = false;
+        }
+    }
+
+    private async Task UpsertSearchIndexAsync(NotebookPage page, CancellationToken cancellationToken)
+    {
+        if (!_searchIndexAvailable)
+        {
+            return;
+        }
+
+        try
+        {
+            await DeleteSearchIndexEntryAsync(page.Id, cancellationToken);
+
+            using var command = _databaseContext.Connection.CreateCommand();
+            command.CommandText = """
+                INSERT INTO notebook_page_search (
+                    page_id,
+                    notebook_id,
+                    title,
+                    source_file_name,
+                    notebook_title,
+                    raw_transcription,
+                    corrected_transcription,
+                    transcription
+                )
+                VALUES (
+                    $pageId,
+                    $notebookId,
+                    $title,
+                    $sourceFileName,
+                    $notebookTitle,
+                    $rawTranscription,
+                    $correctedTranscription,
+                    $transcription
+                );
+                """;
+
+            command.Parameters.AddWithValue("$pageId", page.Id.ToString("N"));
+            command.Parameters.AddWithValue("$notebookId", page.NotebookId?.ToString("N") ?? string.Empty);
+            command.Parameters.AddWithValue("$title", page.Title);
+            command.Parameters.AddWithValue("$sourceFileName", page.OriginalFileName ?? string.Empty);
+            command.Parameters.AddWithValue("$notebookTitle", page.NotebookTitle ?? string.Empty);
+            command.Parameters.AddWithValue("$rawTranscription", page.RawTranscriptionText ?? string.Empty);
+            command.Parameters.AddWithValue("$correctedTranscription", page.CorrectedTranscriptionText ?? string.Empty);
+            command.Parameters.AddWithValue("$transcription", page.TranscriptionText ?? string.Empty);
+
+            await command.ExecuteNonQueryAsync(cancellationToken);
+        }
+        catch (SqliteException)
+        {
+            _searchIndexAvailable = false;
+        }
+    }
+
+    private async Task DeleteSearchIndexEntryAsync(Guid pageId, CancellationToken cancellationToken)
+    {
+        if (!_searchIndexAvailable)
+        {
+            return;
+        }
+
+        try
+        {
+            using var command = _databaseContext.Connection.CreateCommand();
+            command.CommandText = """
+                DELETE FROM notebook_page_search
+                WHERE page_id = $pageId;
+                """;
+            command.Parameters.AddWithValue("$pageId", pageId.ToString("N"));
+            await command.ExecuteNonQueryAsync(cancellationToken);
+        }
+        catch (SqliteException)
+        {
+            _searchIndexAvailable = false;
+        }
+    }
+
+    private async Task<IReadOnlyList<NotebookPage>> SearchPagesInMemoryAsync(
+        string searchText,
+        Guid? notebookId,
+        CancellationToken cancellationToken)
+    {
+        var pages = await LoadPagesAsync(cancellationToken);
+        return pages
+            .Where(page => notebookId is null || (page.NotebookId?.ToString("N") ?? string.Empty) == notebookId.Value.ToString("N"))
+            .Where(page => BuildSearchText(page).Contains(searchText.Trim(), StringComparison.OrdinalIgnoreCase))
+            .ToList();
     }
 
     private NotebookPage? DeserializePage(SqliteDataReader reader)
@@ -198,5 +375,27 @@ public sealed class SqlitePageStorageService : IPageStorageService, IDisposable
 
         Directory.CreateDirectory(appDataRoot);
         return new DatabaseContext(Path.Combine(appDataRoot, "scriptum.db"));
+    }
+
+    private static string BuildSearchText(NotebookPage page) => string.Join(
+        ' ',
+        page.Title,
+        page.OriginalFileName,
+        page.NotebookTitle,
+        page.RawTranscriptionText,
+        page.CorrectedTranscriptionText,
+        page.TranscriptionText);
+
+    private static string BuildFtsQuery(string searchText)
+    {
+        var terms = Regex.Matches(searchText, @"[\p{L}\p{N}_]+")
+            .Select(match => match.Value)
+            .Where(term => !string.IsNullOrWhiteSpace(term))
+            .Take(16)
+            .ToList();
+
+        return terms.Count == 0
+            ? string.Empty
+            : string.Join(' ', terms.Select(term => $"{term}*"));
     }
 }

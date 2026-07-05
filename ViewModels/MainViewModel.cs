@@ -15,6 +15,8 @@ public partial class MainViewModel : ViewModelBase
     private readonly string _importDirectory;
     private readonly List<ImportedPageListItemViewModel> _allImportedPages = new();
     private readonly List<Notebook> _allNotebooks = new();
+    private HashSet<Guid>? _searchResultPageIds;
+    private CancellationTokenSource? _pageSearchRefreshCts;
 
     [ObservableProperty]
     private string _applicationTitle = "Scriptum";
@@ -70,8 +72,10 @@ public partial class MainViewModel : ViewModelBase
             }
 
             _pageSearchText = value;
+            _searchResultPageIds = null;
             OnPropertyChanged();
             ApplyPageSearchFilter();
+            QueuePageSearchRefresh();
         }
     }
 
@@ -291,6 +295,7 @@ public partial class MainViewModel : ViewModelBase
 
     private async Task RefreshImportedPagesAsync(Guid? selectedPageId, CancellationToken cancellationToken = default)
     {
+        await LoadSearchResultPageIdsAsync(cancellationToken);
         var pages = (await _storageService.LoadPagesAsync(cancellationToken))
             .Where(page => !string.IsNullOrWhiteSpace(page.SourceImagePath))
             .ToList();
@@ -346,7 +351,9 @@ public partial class MainViewModel : ViewModelBase
         var filteredPages = string.IsNullOrWhiteSpace(PageSearchText)
             ? notebookPages
             : notebookPages
-                .Where(page => page.SearchText.Contains(PageSearchText.Trim(), StringComparison.OrdinalIgnoreCase))
+                .Where(page => _searchResultPageIds is not null
+                    ? _searchResultPageIds.Contains(page.Id)
+                    : page.SearchText.Contains(PageSearchText.Trim(), StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
         ImportedPages.Clear();
@@ -365,6 +372,42 @@ public partial class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasImportedPages));
         OnPropertyChanged(nameof(HasPageSearchFilter));
         OnPropertyChanged(nameof(PageSearchResultLabel));
+    }
+
+    private void QueuePageSearchRefresh()
+    {
+        _pageSearchRefreshCts?.Cancel();
+        _pageSearchRefreshCts?.Dispose();
+        _pageSearchRefreshCts = new CancellationTokenSource();
+        var token = _pageSearchRefreshCts.Token;
+
+        _ = RefreshPageSearchAsync(token);
+    }
+
+    private async Task RefreshPageSearchAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await RefreshImportedPagesAsync(SelectedPage?.Id ?? NotebookPage.CurrentPage.Id, cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private async Task<HashSet<Guid>?> LoadSearchResultPageIdsAsync(CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(PageSearchText))
+        {
+            _searchResultPageIds = null;
+            return null;
+        }
+
+        var activeNotebookId = SelectedNotebook?.Id ?? DefaultNotebook.Id;
+        var results = await _storageService.SearchPagesAsync(PageSearchText, activeNotebookId, cancellationToken);
+        var resultIds = results.Select(page => page.Id).ToHashSet();
+        _searchResultPageIds = resultIds;
+        return resultIds;
     }
 
     private void EnsurePageNotebook(NotebookPage page)

@@ -18,7 +18,7 @@ The product direction is no longer an in-app handwriting canvas. Scriptum is for
 | Local persistence | Early MVP | SQLCipher-backed page payload storage saves imported page metadata, lists imported pages, loads selected pages, skips unreadable payloads, and shows missing-image recovery states. |
 | Build/local launch | Working locally | Restore and Release x64 build pass locally; the app launches from Windows. |
 | Transcription workspace | Early MVP | Prepared-image storage, no-op preprocessing, disabled OpenCV preprocessing shell, and disabled Qwen vision provider shell feed a mock provider by default; corrected text can be edited, copied, cleared, and saved; real AI/OCR provider work remains future scope. |
-| Notebook management | Early MVP | Sidebar page list/search, persisted notebook creation/selection/rename, page filtering and move-to-notebook, title refresh, updated timestamp display, unsaved text-edit state with discard guard, new-page reset, confirmed delete, and core keyboard shortcuts work for imported pages; tags are still missing. |
+| Notebook management | Early MVP | Sidebar page list/search with SQLCipher FTS fallback, persisted notebook creation/selection/rename, page filtering and move-to-notebook, title refresh, updated timestamp display, unsaved text-edit state with discard guard, new-page reset, confirmed delete, and core keyboard shortcuts work for imported pages; tags are still missing. |
 | Export/import | Early MVP | Current-page Markdown export and basic LLM-formatted clipboard handoff work for corrected text; PDF/image export and backup/restore flows are still missing. |
 | Packaging/release | Not started | App icons, MSIX signing, installer/release pipeline, and versioning still need work. |
 
@@ -80,7 +80,7 @@ A usable MVP should allow someone to:
 ### Milestone 4: Useful personal notebook
 
 - Basic sidebar search. — complete
-- Full-text indexed transcription search.
+- Full-text indexed transcription search. — complete
 - Add tags and project metadata.
 - Export current page Markdown. — complete
 - Basic LLM-formatted clipboard handoff. — complete

@@ -149,7 +149,7 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [x] Add basic sidebar search over titles, filenames, notebooks, and saved transcription text.
 - [x] Add Markdown export for the current page corrected text.
 - [x] Add basic LLM-formatted clipboard handoff.
-- [ ] Add full-text search index over corrected transcriptions.
+- [x] Add full-text search index over corrected transcriptions.
 - [ ] Add tags and project/repo association.
 - [ ] Add developer note templates.
 - [ ] Add batch Markdown export.
@@ -212,7 +212,7 @@ The drawing canvas is not the MVP driver. It can become useful later as an annot
 16. [x] Add Markdown/export handoff.
 17. [x] Add full notebook grouping and selection.
 18. [x] Add notebook rename and move-page behavior.
-19. [ ] Add full-text indexed search.
+19. [x] Add full-text indexed search.
 20. [ ] Add MSIX packaging.
 
 ## Working Rule
