@@ -124,8 +124,24 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         : "Not saved yet";
 
     public string TranscriptionStatus => string.IsNullOrWhiteSpace(CurrentPage.CorrectedTranscriptionText ?? CurrentPage.RawTranscriptionText ?? CurrentPage.TranscriptionText)
-        ? "Waiting for transcription"
+        ? string.IsNullOrWhiteSpace(CurrentPage.TranscriptionFailureMessage)
+            ? "Waiting for transcription"
+            : "Transcription failed"
         : "Draft ready";
+
+    public string TranscriptionProviderLabel => string.IsNullOrWhiteSpace(CurrentPage.TranscriptionProviderName)
+        ? "Provider: not run yet"
+        : $"Provider: {CurrentPage.TranscriptionProviderName}";
+
+    public string TranscriptionTimestampLabel => CurrentPage.TranscribedAt is not null
+        ? $"Transcribed: {CurrentPage.TranscribedAt.Value.ToLocalTime():f}"
+        : CurrentPage.TranscriptionFailedAt is not null
+            ? $"Last failed: {CurrentPage.TranscriptionFailedAt.Value.ToLocalTime():f}"
+            : "Transcribed: not run yet";
+
+    public string TranscriptionFailureLabel => string.IsNullOrWhiteSpace(CurrentPage.TranscriptionFailureMessage)
+        ? "No transcription failure recorded"
+        : $"Last failure: {CurrentPage.TranscriptionFailureMessage}";
 
     public bool HasUnsavedTextEdits => HasImportedImage
         && (GetNormalizedTitle(EditablePageTitle) != GetNormalizedTitle(CurrentPage.Title)
@@ -407,6 +423,10 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
 
             var result = await _transcriptionProvider.TranscribeAsync(CurrentPage, preprocessingResult, cancellationToken);
             CurrentPage.RawTranscriptionText = result.RawText;
+            CurrentPage.TranscriptionProviderName = result.ProviderName;
+            CurrentPage.TranscribedAt = DateTimeOffset.UtcNow;
+            CurrentPage.TranscriptionFailureMessage = null;
+            CurrentPage.TranscriptionFailedAt = null;
             if (string.IsNullOrWhiteSpace(CurrentPage.CorrectedTranscriptionText)
                 && string.IsNullOrWhiteSpace(CorrectedTranscriptionDraft))
             {
@@ -421,7 +441,22 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
+            CurrentPage.TranscriptionFailureMessage = SanitizeFailureMessage(ex.Message);
+            CurrentPage.TranscriptionFailedAt = DateTimeOffset.UtcNow;
+            if (HasImportedImage)
+            {
+                try
+                {
+                    await _storageService.SavePageAsync(CurrentPage, cancellationToken);
+                }
+                catch
+                {
+                    // Keep the user-facing transcription error as the primary failure.
+                }
+            }
+
             ErrorMessage = $"Unable to transcribe page: {ex.Message}";
+            NotifyPageStateChanged();
         }
         finally
         {
@@ -542,6 +577,8 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
             - Source image: {sourceImage}
             - Imported: {imported}
             - Updated: {UpdatedDateLabel}
+            - Transcription provider: {GetTranscriptionProviderForExport()}
+            - Transcribed: {GetTranscribedAtForExport()}
 
             ## Corrected Text
 
@@ -579,6 +616,8 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
             - Source image: {sourceImage}
             - Imported: {imported}
             - Updated: {UpdatedDateLabel}
+            - Transcription provider: {GetTranscriptionProviderForExport()}
+            - Transcribed: {GetTranscribedAtForExport()}
 
             Notes:
             {correctedText}
@@ -630,6 +669,9 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         OnPropertyChanged(nameof(ImportedDateLabel));
         OnPropertyChanged(nameof(UpdatedDateLabel));
         OnPropertyChanged(nameof(TranscriptionStatus));
+        OnPropertyChanged(nameof(TranscriptionProviderLabel));
+        OnPropertyChanged(nameof(TranscriptionTimestampLabel));
+        OnPropertyChanged(nameof(TranscriptionFailureLabel));
         OnPropertyChanged(nameof(HasUnsavedTextEdits));
         OnPropertyChanged(nameof(TextEditStateLabel));
         OnPropertyChanged(nameof(SaveButtonLabel));
@@ -755,9 +797,28 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         ? string.Empty
         : text;
 
+    private static string SanitizeFailureMessage(string message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            return "Unknown transcription failure.";
+        }
+
+        var normalized = message
+            .Replace(Environment.NewLine, " ", StringComparison.Ordinal)
+            .Trim();
+        return normalized.Length <= 240 ? normalized : $"{normalized[..240]}...";
+    }
+
     private string? GetCorrectedTextForExport() => string.IsNullOrWhiteSpace(CorrectedTranscriptionDraft)
         ? CurrentPage.CorrectedTranscriptionText ?? CurrentPage.TranscriptionText
         : CorrectedTranscriptionDraft;
+
+    private string GetTranscriptionProviderForExport() => string.IsNullOrWhiteSpace(CurrentPage.TranscriptionProviderName)
+        ? "Not recorded"
+        : CurrentPage.TranscriptionProviderName;
+
+    private string GetTranscribedAtForExport() => CurrentPage.TranscribedAt?.ToLocalTime().ToString("f") ?? "Not recorded";
 
     private static string GetSafeFileName(string value)
     {

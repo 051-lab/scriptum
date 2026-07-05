@@ -47,7 +47,9 @@ public sealed partial class ImportedPageListItemViewModel : ViewModelBase
         UpdatedAt = page.UpdatedAt;
         IsImageMissing = !string.IsNullOrWhiteSpace(page.SourceImagePath) && !File.Exists(page.SourceImagePath);
         TranscriptionStatus = string.IsNullOrWhiteSpace(page.CorrectedTranscriptionText ?? page.RawTranscriptionText ?? page.TranscriptionText)
-            ? "Waiting for transcription"
+            ? string.IsNullOrWhiteSpace(page.TranscriptionFailureMessage)
+                ? "Waiting for transcription"
+                : "Transcription failed"
             : "Draft ready";
 
         OnPropertyChanged(nameof(Title));

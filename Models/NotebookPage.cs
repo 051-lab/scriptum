@@ -53,5 +53,13 @@ public sealed class NotebookPage
 
     public string? CorrectedTranscriptionText { get; set; }
 
+    public string? TranscriptionProviderName { get; set; }
+
+    public DateTimeOffset? TranscribedAt { get; set; }
+
+    public string? TranscriptionFailureMessage { get; set; }
+
+    public DateTimeOffset? TranscriptionFailedAt { get; set; }
+
     public List<InkStroke> Strokes { get; set; } = new();
 }

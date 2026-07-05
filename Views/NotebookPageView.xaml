@@ -316,6 +316,15 @@
                             <TextBlock Text="{x:Bind ViewModel.TranscriptionStatus, Mode=OneWay}"
                                        Foreground="#7D5D1B"
                                        FontWeight="SemiBold" />
+                            <TextBlock Text="{x:Bind ViewModel.TranscriptionProviderLabel, Mode=OneWay}"
+                                       Foreground="#6F675C"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Text="{x:Bind ViewModel.TranscriptionTimestampLabel, Mode=OneWay}"
+                                       Foreground="#6F675C"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Text="{x:Bind ViewModel.TranscriptionFailureLabel, Mode=OneWay}"
+                                       Foreground="#7D5D1B"
+                                       TextWrapping="Wrap" />
                         </StackPanel>
                     </Border>
 

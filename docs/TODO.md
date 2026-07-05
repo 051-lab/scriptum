@@ -145,8 +145,8 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [ ] Validate TrOCR provider against real notebook photos.
 - [x] Add heuristic handwriting line detection for TrOCR.
 - [ ] Validate and tune TrOCR line detection against real notebook photos.
-- [ ] Add transcription provider metadata and processing timestamps.
-- [ ] Add transcription failure persistence without leaking secrets.
+- [x] Add transcription provider metadata and processing timestamps.
+- [x] Add transcription failure persistence without leaking secrets.
 
 ---
 
