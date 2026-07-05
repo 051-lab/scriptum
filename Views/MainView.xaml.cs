@@ -55,7 +55,7 @@ public sealed partial class MainView : Page
 
     private async void NotebookPageSurface_PageLibraryChanged(object? sender, EventArgs e)
     {
-        await ViewModel.RefreshImportedPagesAsync();
+        await ViewModel.RefreshCurrentPageListItemAsync();
         NotebookPageSurface.RefreshView();
         Bindings.Update();
     }

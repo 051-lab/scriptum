@@ -105,6 +105,7 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 ## Phase 2: MVP navigation and daily usability
 
 - [x] Add sidebar page navigation.
+- [x] Preserve sidebar selection and refresh edited titles.
 - [ ] Add import queue or recent imports list.
 - [ ] Add basic image rotate/crop workflow for photographed notebook pages.
 - [ ] Add page title editing.

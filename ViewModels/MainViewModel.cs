@@ -99,12 +99,67 @@ public partial class MainViewModel : ViewModelBase
     public async Task RefreshImportedPagesAsync(CancellationToken cancellationToken = default)
     {
         var selectedPageId = SelectedPage?.Id ?? NotebookPage.CurrentPage.Id;
-        var pages = await _storageService.LoadPagesAsync(cancellationToken);
+        await RefreshImportedPagesAsync(selectedPageId, cancellationToken);
+    }
 
-        ImportedPages.Clear();
-        foreach (var page in pages.Where(page => !string.IsNullOrWhiteSpace(page.SourceImagePath)))
+    public async Task RefreshCurrentPageListItemAsync(CancellationToken cancellationToken = default)
+    {
+        if (!NotebookPage.HasImportedImage)
         {
-            ImportedPages.Add(new ImportedPageListItemViewModel(page));
+            await RefreshImportedPagesAsync(cancellationToken);
+            return;
+        }
+
+        var page = await _storageService.LoadPageAsync(NotebookPage.CurrentPage.Id, cancellationToken);
+        if (page is null)
+        {
+            await RefreshImportedPagesAsync(cancellationToken);
+            return;
+        }
+
+        var existing = ImportedPages.FirstOrDefault(item => item.Id == page.Id);
+        if (existing is null)
+        {
+            await RefreshImportedPagesAsync(page.Id, cancellationToken);
+            return;
+        }
+
+        existing.UpdateFrom(page);
+        SelectedPage = existing;
+    }
+
+    private async Task RefreshImportedPagesAsync(Guid? selectedPageId, CancellationToken cancellationToken = default)
+    {
+        var pages = (await _storageService.LoadPagesAsync(cancellationToken))
+            .Where(page => !string.IsNullOrWhiteSpace(page.SourceImagePath))
+            .ToList();
+        var pageIds = pages.Select(page => page.Id).ToHashSet();
+
+        for (var index = ImportedPages.Count - 1; index >= 0; index--)
+        {
+            if (!pageIds.Contains(ImportedPages[index].Id))
+            {
+                ImportedPages.RemoveAt(index);
+            }
+        }
+
+        for (var index = 0; index < pages.Count; index++)
+        {
+            var page = pages[index];
+            var existing = ImportedPages.FirstOrDefault(item => item.Id == page.Id);
+            if (existing is null)
+            {
+                ImportedPages.Insert(index, new ImportedPageListItemViewModel(page));
+            }
+            else
+            {
+                existing.UpdateFrom(page);
+                var currentIndex = ImportedPages.IndexOf(existing);
+                if (currentIndex != index)
+                {
+                    ImportedPages.Move(currentIndex, index);
+                }
+            }
         }
 
         SelectedPage = ImportedPages.FirstOrDefault(page => page.Id == selectedPageId)
