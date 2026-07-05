@@ -72,4 +72,22 @@ dotnet run --project Scriptum.csproj --configuration Release -p:Platform=x64
 
 Windows OCR is local and credential-free, but handwritten notebook accuracy depends heavily on the handwriting, lighting, contrast, crop, and installed Windows OCR language support. Vision-model transcription remains the stronger path for messy handwritten pages.
 
+### Optional local TrOCR transcription
+
+For a local handwriting-model prototype, install Python dependencies and use the TrOCR provider:
+
+```powershell
+python -m venv .venv-trocr
+.\.venv-trocr\Scripts\Activate.ps1
+python -m pip install torch pillow transformers sentencepiece
+
+$env:SCRIPTUM_TRANSCRIPTION_PROVIDER = "trocr"
+$env:SCRIPTUM_TROCR_PYTHON = ".\.venv-trocr\Scripts\python.exe"
+$env:SCRIPTUM_TROCR_MODEL = "microsoft/trocr-base-handwritten"
+
+dotnet run --project Scriptum.csproj --configuration Release -p:Platform=x64
+```
+
+The current TrOCR helper runs on the full prepared page image. It is useful for local experimentation, but better handwriting results will likely require a future line-detection step that crops the page into individual handwritten lines before running TrOCR.
+
 WSL can be useful for Git and text editing, but WinUI 3 launch and manual UI testing should be run from the Windows desktop session so the app can create a real window and receive mouse, pen, or touch input.

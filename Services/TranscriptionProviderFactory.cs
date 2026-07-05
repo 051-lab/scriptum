@@ -11,6 +11,23 @@ public static class TranscriptionProviderFactory
             return new WindowsOcrTranscriptionProvider();
         }
 
+        if (string.Equals(provider, "trocr", StringComparison.OrdinalIgnoreCase))
+        {
+            return new TrocrTranscriptionProvider(new TrocrTranscriptionOptions
+            {
+                PythonExecutable = Environment.GetEnvironmentVariable("SCRIPTUM_TROCR_PYTHON") ?? "python",
+                ScriptPath = Environment.GetEnvironmentVariable("SCRIPTUM_TROCR_SCRIPT")
+                    ?? Path.Combine("tools", "transcribe_trocr.py"),
+                Model = Environment.GetEnvironmentVariable("SCRIPTUM_TROCR_MODEL")
+                    ?? "microsoft/trocr-base-handwritten",
+                TimeoutSeconds = int.TryParse(
+                    Environment.GetEnvironmentVariable("SCRIPTUM_TROCR_TIMEOUT_SECONDS"),
+                    out var timeoutSeconds)
+                    ? timeoutSeconds
+                    : 180
+            });
+        }
+
         var useQwen = string.Equals(provider, "qwen", StringComparison.OrdinalIgnoreCase)
             || string.Equals(
                 Environment.GetEnvironmentVariable("SCRIPTUM_USE_QWEN_TRANSCRIPTION"),

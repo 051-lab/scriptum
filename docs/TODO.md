@@ -133,6 +133,7 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [x] Add `ITranscriptionProvider` abstraction.
 - [x] Add mock/local transcription provider for testing.
 - [x] Add Windows OCR transcription provider.
+- [x] Add local TrOCR transcription provider prototype.
 - [x] Add Qwen-VL provider boundary.
 - [x] Add transcription UI and correction panel.
 - [x] Persist corrected transcription text.
@@ -141,6 +142,8 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [ ] Implement and validate real OpenCVSharp preprocessing.
 - [x] Implement real OpenAI-compatible Qwen vision provider.
 - [ ] Validate real Qwen-VL provider with endpoint/API-key configuration.
+- [ ] Validate TrOCR provider against real notebook photos.
+- [ ] Add handwriting line detection for TrOCR.
 - [ ] Add transcription provider metadata and processing timestamps.
 - [ ] Add transcription failure persistence without leaking secrets.
 
