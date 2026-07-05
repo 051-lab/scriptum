@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Scriptum.ViewModels;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
 
@@ -86,6 +87,37 @@ public sealed partial class NotebookPageView : UserControl
         PageLibraryChanged?.Invoke(this, EventArgs.Empty);
         Bindings.Update();
         UpdateEmptyState();
+    }
+
+    private void CopyTextButton_Click(object sender, RoutedEventArgs e)
+    {
+        var correctedText = ViewModel.GetCorrectedTextForCopy();
+        if (correctedText is null)
+        {
+            ViewModel.MarkCorrectedTextCopyUnavailable();
+            Bindings.Update();
+            return;
+        }
+
+        var package = new DataPackage();
+        package.SetText(correctedText);
+        Clipboard.SetContent(package);
+        ViewModel.MarkCorrectedTextCopied();
+        Bindings.Update();
+    }
+
+    private async void ClearRawButton_Click(object sender, RoutedEventArgs e)
+    {
+        await ViewModel.ClearRawTranscriptionAsync();
+        PageLibraryChanged?.Invoke(this, EventArgs.Empty);
+        Bindings.Update();
+    }
+
+    private async void ClearCorrectedButton_Click(object sender, RoutedEventArgs e)
+    {
+        await ViewModel.ClearCorrectedTranscriptionAsync();
+        PageLibraryChanged?.Invoke(this, EventArgs.Empty);
+        Bindings.Update();
     }
 
     private async void LoadLatestButton_Click(object sender, RoutedEventArgs e)

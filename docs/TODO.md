@@ -131,9 +131,10 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [x] Add `ITranscriptionProvider` abstraction.
 - [x] Add mock/local transcription provider for testing.
 - [ ] Add Qwen-VL provider boundary.
-- [ ] Add transcription UI and correction panel.
+- [x] Add transcription UI and correction panel.
 - [x] Persist corrected transcription text.
 - [x] Persist raw transcription text separately from corrected text.
+- [x] Add copy/clear controls for local transcription text.
 
 ---
 

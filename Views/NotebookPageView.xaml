@@ -275,9 +275,20 @@
                         </Grid.RowDefinitions>
 
                         <StackPanel Spacing="7">
-                            <TextBlock Text="Raw Transcription"
-                                       Foreground="#211F1A"
-                                       FontWeight="SemiBold" />
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="Raw Transcription"
+                                           Foreground="#211F1A"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center" />
+                                <Button Grid.Column="1"
+                                        Content="Clear Raw"
+                                        Click="ClearRawButton_Click" />
+                            </Grid>
                             <TextBox Text="{x:Bind ViewModel.RawTranscriptionText, Mode=OneWay}"
                                      AcceptsReturn="True"
                                      TextWrapping="Wrap"
@@ -297,20 +308,26 @@
                         </StackPanel>
                     </Grid>
 
-                    <Grid Grid.Row="4" ColumnSpacing="8">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Row="4" Spacing="8">
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
 
-                        <Button Content="Copy Text"
-                                IsEnabled="False"
+                            <Button Content="Copy Text"
+                                    Click="CopyTextButton_Click"
+                                    HorizontalAlignment="Stretch" />
+                            <Button Grid.Column="1"
+                                    Content="Save Correction"
+                                    Click="SaveCorrectionButton_Click"
+                                    HorizontalAlignment="Stretch" />
+                        </Grid>
+
+                        <Button Content="Clear Corrected"
+                                Click="ClearCorrectedButton_Click"
                                 HorizontalAlignment="Stretch" />
-                        <Button Grid.Column="1"
-                                Content="Save Correction"
-                                Click="SaveCorrectionButton_Click"
-                                HorizontalAlignment="Stretch" />
-                    </Grid>
+                    </StackPanel>
                 </Grid>
             </Border>
         </Grid>

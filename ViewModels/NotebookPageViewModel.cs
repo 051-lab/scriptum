@@ -348,6 +348,60 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         }
     }
 
+    public async Task ClearRawTranscriptionAsync(CancellationToken cancellationToken = default)
+    {
+        if (!HasImportedImage)
+        {
+            StatusMessage = "Import a notebook page before clearing transcription text.";
+            OnPropertyChanged(nameof(StatusMessage));
+            return;
+        }
+
+        CurrentPage.RawTranscriptionText = null;
+        CurrentPage.UpdatedAt = DateTimeOffset.UtcNow;
+        await _storageService.SavePageAsync(CurrentPage, cancellationToken);
+        StatusMessage = "Cleared raw transcription.";
+        NotifyPageStateChanged();
+    }
+
+    public async Task ClearCorrectedTranscriptionAsync(CancellationToken cancellationToken = default)
+    {
+        if (!HasImportedImage)
+        {
+            StatusMessage = "Import a notebook page before clearing corrected text.";
+            OnPropertyChanged(nameof(StatusMessage));
+            return;
+        }
+
+        CurrentPage.CorrectedTranscriptionText = null;
+        CorrectedTranscriptionDraft = string.Empty;
+        CurrentPage.UpdatedAt = DateTimeOffset.UtcNow;
+        await _storageService.SavePageAsync(CurrentPage, cancellationToken);
+        StatusMessage = "Cleared corrected text.";
+        NotifyPageStateChanged();
+    }
+
+    public string? GetCorrectedTextForCopy()
+    {
+        var text = string.IsNullOrWhiteSpace(CorrectedTranscriptionDraft)
+            ? CurrentPage.CorrectedTranscriptionText ?? CurrentPage.TranscriptionText
+            : CorrectedTranscriptionDraft;
+
+        return string.IsNullOrWhiteSpace(text) ? null : text;
+    }
+
+    public void MarkCorrectedTextCopied()
+    {
+        StatusMessage = "Copied corrected text to clipboard.";
+        OnPropertyChanged(nameof(StatusMessage));
+    }
+
+    public void MarkCorrectedTextCopyUnavailable()
+    {
+        StatusMessage = "There is no corrected text to copy.";
+        OnPropertyChanged(nameof(StatusMessage));
+    }
+
     private void NotifyPageStateChanged()
     {
         OnPropertyChanged(nameof(StatusMessage));
