@@ -18,7 +18,7 @@ The product direction is no longer an in-app handwriting canvas. Scriptum is for
 | Local persistence | Early MVP | SQLCipher-backed page payload storage saves imported page metadata, lists imported pages, loads selected pages, skips unreadable payloads, and shows missing-image recovery states. |
 | Build/local launch | Working locally | Restore and Release x64 build pass locally; the app launches from Windows. |
 | Transcription workspace | Early MVP | Prepared-image storage, no-op preprocessing, disabled OpenCV preprocessing shell, and disabled Qwen vision provider shell feed a mock provider by default; corrected text can be edited, copied, cleared, and saved; real AI/OCR provider work remains future scope. |
-| Notebook management | Early MVP | Sidebar page list, selection preservation, title refresh, new-page reset, confirmed delete, and core keyboard shortcuts work for imported pages; notebook/project groups are placeholders and tags are still missing. |
+| Notebook management | Early MVP | Sidebar page list, selection preservation, title refresh, updated timestamp display, new-page reset, confirmed delete, and core keyboard shortcuts work for imported pages; notebook/project groups are placeholders and tags are still missing. |
 | Export/import | Not started | Markdown/PDF/image export and backup/restore flows are still missing. |
 | Packaging/release | Not started | App icons, MSIX signing, installer/release pipeline, and versioning still need work. |
 

@@ -95,6 +95,7 @@
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Spacing="2">
@@ -104,12 +105,18 @@
                             </StackPanel>
 
                             <StackPanel Grid.Column="1" Spacing="2">
+                                <TextBlock Text="UPDATED" Style="{StaticResource PanelLabelStyle}" />
+                                <TextBlock Text="{x:Bind ViewModel.UpdatedDateLabel, Mode=OneWay}"
+                                           Foreground="#D6CFC4" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" Spacing="2">
                                 <TextBlock Text="IMAGE" Style="{StaticResource PanelLabelStyle}" />
                                 <TextBlock Text="{x:Bind ViewModel.ImageSizeLabel, Mode=OneWay}"
                                            Foreground="#D6CFC4" />
                             </StackPanel>
 
-                            <StackPanel Grid.Column="2" Spacing="2">
+                            <StackPanel Grid.Column="3" Spacing="2">
                                 <TextBlock Text="STATUS" Style="{StaticResource PanelLabelStyle}" />
                                 <TextBlock Text="{x:Bind ViewModel.PageStatusLabel, Mode=OneWay}"
                                            Foreground="#D9B36A"
@@ -290,6 +297,9 @@
                                      Text="{x:Bind ViewModel.EditablePageTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      PlaceholderText="Page title" />
                             <TextBlock Text="{x:Bind ViewModel.ImageDetails, Mode=OneWay}"
+                                       Foreground="#6F675C"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Text="{x:Bind ViewModel.UpdatedDateLabel, Mode=OneWay}"
                                        Foreground="#6F675C"
                                        TextWrapping="Wrap" />
                             <TextBlock Text="{x:Bind ViewModel.RotationLabel, Mode=OneWay}"

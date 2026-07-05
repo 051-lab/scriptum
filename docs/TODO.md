@@ -89,7 +89,7 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 - [x] Add page title field.
 - [x] Add rename behavior.
 - [x] Add delete behavior with confirmation.
-- [ ] Add updated timestamp display.
+- [x] Add updated timestamp display.
 - [ ] Add dirty-state tracking.
 - [x] Add save status/confirmation.
 

@@ -111,6 +111,10 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
 
     public string ImportedDateLabel => CurrentPage.ImportedAt?.ToLocalTime().ToString("f") ?? "Not imported yet";
 
+    public string UpdatedDateLabel => HasImportedImage
+        ? CurrentPage.UpdatedAt.ToLocalTime().ToString("f")
+        : "Not saved yet";
+
     public string TranscriptionStatus => string.IsNullOrWhiteSpace(CurrentPage.CorrectedTranscriptionText ?? CurrentPage.RawTranscriptionText ?? CurrentPage.TranscriptionText)
         ? "Waiting for transcription"
         : "Draft ready";
@@ -497,6 +501,7 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
         OnPropertyChanged(nameof(RotationLabel));
         OnPropertyChanged(nameof(TranscriptionText));
         OnPropertyChanged(nameof(ImportedDateLabel));
+        OnPropertyChanged(nameof(UpdatedDateLabel));
         OnPropertyChanged(nameof(TranscriptionStatus));
         OnPropertyChanged(nameof(RawTranscriptionText));
         OnPropertyChanged(nameof(CorrectedTranscriptionText));
