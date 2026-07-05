@@ -126,8 +126,8 @@ Goal: create the smallest useful Scriptum experience: import or capture a page f
 
 ## Phase 4: Transcription MVP
 
-- [ ] Prepare imported page image for OCR/transcription.
-- [ ] Add preprocessing service boundary.
+- [x] Prepare imported page image for OCR/transcription.
+- [x] Add preprocessing service boundary.
 - [ ] Add OpenCVSharp adapter or equivalent preprocessing adapter.
 - [x] Add `ITranscriptionProvider` abstraction.
 - [x] Add mock/local transcription provider for testing.

@@ -6,5 +6,8 @@ public interface ITranscriptionProvider
 {
     string Name { get; }
 
-    Task<TranscriptionResult> TranscribeAsync(NotebookPage page, CancellationToken cancellationToken = default);
+    Task<TranscriptionResult> TranscribeAsync(
+        NotebookPage page,
+        PageImagePreprocessingResult preprocessingResult,
+        CancellationToken cancellationToken = default);
 }

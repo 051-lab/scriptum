@@ -23,19 +23,24 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
     ];
 
     private readonly IPageStorageService _storageService;
+    private readonly IPageImagePreprocessingService _preprocessingService;
     private readonly ITranscriptionProvider _transcriptionProvider;
     private readonly string _importDirectory;
     private string _editablePageTitle = "Untitled notebook page";
     private string _correctedTranscriptionDraft = string.Empty;
 
     public NotebookPageViewModel()
-        : this(new SqlitePageStorageService(), new MockTranscriptionProvider())
+        : this(new SqlitePageStorageService(), new NoOpPageImagePreprocessingService(), new MockTranscriptionProvider())
     {
     }
 
-    public NotebookPageViewModel(IPageStorageService storageService, ITranscriptionProvider? transcriptionProvider = null)
+    public NotebookPageViewModel(
+        IPageStorageService storageService,
+        IPageImagePreprocessingService? preprocessingService = null,
+        ITranscriptionProvider? transcriptionProvider = null)
     {
         _storageService = storageService;
+        _preprocessingService = preprocessingService ?? new NoOpPageImagePreprocessingService();
         _transcriptionProvider = transcriptionProvider ?? new MockTranscriptionProvider();
         _importDirectory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -300,7 +305,11 @@ public sealed partial class NotebookPageViewModel : ViewModelBase
 
         try
         {
-            var result = await _transcriptionProvider.TranscribeAsync(CurrentPage, cancellationToken);
+            StatusMessage = "Preparing page image for transcription.";
+            OnPropertyChanged(nameof(StatusMessage));
+
+            var preprocessingResult = await _preprocessingService.PrepareAsync(CurrentPage, cancellationToken);
+            var result = await _transcriptionProvider.TranscribeAsync(CurrentPage, preprocessingResult, cancellationToken);
             CurrentPage.RawTranscriptionText = result.RawText;
             if (string.IsNullOrWhiteSpace(CurrentPage.CorrectedTranscriptionText)
                 && string.IsNullOrWhiteSpace(CorrectedTranscriptionDraft))

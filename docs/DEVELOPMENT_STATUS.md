@@ -17,7 +17,7 @@ The product direction is no longer an in-app handwriting canvas. Scriptum is for
 | Page import | Early MVP | Image import copies supported files into local app storage and displays the imported page. |
 | Local persistence | Early MVP | SQLCipher-backed page payload storage saves imported page metadata, lists imported pages, and loads selected pages. |
 | Build/local launch | Working locally | Restore and Release x64 build pass locally; the app launches from Windows. |
-| Transcription workspace | Early MVP | Mock provider fills raw text; corrected text can be edited, copied, cleared, and saved; AI/OCR provider work remains future scope. |
+| Transcription workspace | Early MVP | No-op preprocessing boundary feeds a mock provider; corrected text can be edited, copied, cleared, and saved; real AI/OCR provider work remains future scope. |
 | Notebook management | Early MVP | Sidebar page list, selection preservation, title refresh, and confirmed delete work for imported pages; notebook/project groups are placeholders and tags are still missing. |
 | Export/import | Not started | Markdown/PDF/image export and backup/restore flows are still missing. |
 | Packaging/release | Not started | App icons, MSIX signing, installer/release pipeline, and versioning still need work. |
@@ -65,7 +65,7 @@ A usable MVP should allow someone to:
 
 ### Milestone 3: Transcription MVP
 
-- Add preprocessing service boundary for imported page images.
+- Add preprocessing service boundary for imported page images. — complete
 - Add `ITranscriptionProvider`. — complete
 - Add mock transcription provider for UI testing. — complete
 - Add Qwen or other vision-model provider.

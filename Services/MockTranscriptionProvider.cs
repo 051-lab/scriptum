@@ -6,7 +6,10 @@ public sealed class MockTranscriptionProvider : ITranscriptionProvider
 {
     public string Name => "Mock local transcription";
 
-    public Task<TranscriptionResult> TranscribeAsync(NotebookPage page, CancellationToken cancellationToken = default)
+    public Task<TranscriptionResult> TranscribeAsync(
+        NotebookPage page,
+        PageImagePreprocessingResult preprocessingResult,
+        CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -19,6 +22,8 @@ public sealed class MockTranscriptionProvider : ITranscriptionProvider
             [Mock transcription]
             Source page: {sourceName}
             Imported: {imported}
+            Prepared image: {Path.GetFileName(preprocessingResult.PreparedImagePath)}
+            Preprocessing: {preprocessingResult.Summary}
 
             This placeholder represents the raw handwriting transcription that will be produced by an OCR or vision-model provider. Review it, move useful content into Corrected Text, and save the correction.
             """;
